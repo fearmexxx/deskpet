@@ -1,0 +1,9 @@
+node_modules/
+.env
+.env.*
+distributor-keypair.json
+*.zip
+*.rar
+.gitnexus/
+.claude/
+.gemini/

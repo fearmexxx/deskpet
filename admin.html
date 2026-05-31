@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DeskPet Station - Admin Control Center</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Share+Tech+Mono&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="dashboard.css">
+  <style>
+    body {
+      background: #06020f;
+    }
+    .admin-wrapper {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+    .admin-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-top: 20px;
+    }
+    @media (max-width: 768px) {
+      .admin-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    .config-field {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      padding: 8px 12px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 4px;
+    }
+    .config-field label {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 13px;
+      color: rgba(255,255,255,0.7);
+    }
+    .config-field input {
+      background: rgba(0,0,0,0.5);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: #00E5FF;
+      padding: 4px 8px;
+      border-radius: 4px;
+      width: 80px;
+      text-align: right;
+      font-family: inherit;
+    }
+    .user-list {
+      max-height: 350px;
+      overflow-y: auto;
+      margin-top: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .user-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(0,0,0,0.4);
+      padding: 10px;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 4px;
+      font-size: 13px;
+    }
+    .user-actions button {
+      padding: 4px 8px;
+      font-size: 11px;
+    }
+  </style>
+</head>
+<body>
+  <div class="dashboard-wrapper">
+    <div class="grid-overlay"></div>
+    <div class="glow-spotlight text-glow"></div>
+
+    <header class="main-header">
+      <div class="header-logo">
+        <span class="logo-accent">🛡️</span> DESKPET ADMIN CONTROL CENTER
+      </div>
+      <a href="dashboard.html" class="hud-btn" style="text-decoration:none; display:flex; align-items:center; font-size:12px;">
+        🏠 Control Station
+      </a>
+    </header>
+
+    <div class="admin-wrapper">
+      <div id="admin-auth-guard" class="glass-card" style="text-align:center; padding:40px 20px;">
+        <h2 style="color:#ff007f;">ACCESS RESTRICTED</h2>
+        <p style="color:rgba(255,255,255,0.6); margin-top:10px;">You must be logged in as an administrator to access these console controls.</p>
+      </div>
+
+      <div id="admin-dashboard-view" class="admin-grid hidden">
+        <!-- Configuration Editor -->
+        <section class="glass-card">
+          <h3>SYSTEM GLOBAL CONFIGURATION</h3>
+          <p style="font-size:12px; color:rgba(255,255,255,0.5); margin-bottom:16px;">Modify real-time shop pricing and multipliers immediately. Updates update the global database rules.</p>
+          
+          <form id="config-form">
+            <h4 style="color:#00E5FF; margin-bottom:8px;">Cyber Shop Prices</h4>
+            <div class="config-field">
+              <label>Treat Cost ($PETCOIN)</label>
+              <input type="number" id="cfg-cost-treat" value="20" required min="1">
+            </div>
+            <div class="config-field">
+              <label>Toy Cost ($PETCOIN)</label>
+              <input type="number" id="cfg-cost-toy" value="30" required min="1">
+            </div>
+            <div class="config-field">
+              <label>Battery Cost ($PETCOIN)</label>
+              <input type="number" id="cfg-cost-battery" value="50" required min="1">
+            </div>
+            <div class="config-field">
+              <label>Mutagen Cost ($PETCOIN)</label>
+              <input type="number" id="cfg-cost-mutagen" value="200" required min="1">
+            </div>
+            <div class="config-field">
+              <label>Reset Injector Cost ($PETCOIN)</label>
+              <input type="number" id="cfg-cost-reset" value="10000" required min="1">
+            </div>
+            <div class="config-field">
+              <label>Cosmetic Skin Cost ($PETCOIN)</label>
+              <input type="number" id="cfg-cost-skin" value="5000" required min="1">
+            </div>
+            <div class="config-field">
+              <label>Ascend Rarity Cost ($PETCOIN)</label>
+              <input type="number" id="cfg-cost-rarity" value="50000" required min="1">
+            </div>
+
+            <h4 style="color:#a855f7; margin:16px 0 8px 0;">Evolution Costs ($PETCOIN)</h4>
+            <div class="config-field">
+              <label>Evolve to Teen Cost</label>
+              <input type="number" id="cfg-evolve-teen" value="1500" required min="1">
+            </div>
+            <div class="config-field">
+              <label>Evolve to Adult Cost</label>
+              <input type="number" id="cfg-evolve-adult" value="100000" required min="1">
+            </div>
+            <div class="config-field">
+              <label>Evolve to Legendary Cost</label>
+              <input type="number" id="cfg-evolve-legendary" value="100000" required min="1">
+            </div>
+
+            <h4 style="color:#ff007f; margin:16px 0 8px 0;">Evolution Level Limits</h4>
+            <div class="config-field">
+              <label>Baby &rarr; Teen Requirement</label>
+              <input type="number" id="cfg-level-teen" value="10" required min="1">
+            </div>
+            <div class="config-field">
+              <label>Teen &rarr; Adult Requirement</label>
+              <input type="number" id="cfg-level-adult" value="30" required min="1">
+            </div>
+
+            <h4 style="color:#00ff00; margin:16px 0 8px 0;">Breeding Configuration</h4>
+            <div class="config-field">
+              <label>Breeding Min Level</label>
+              <input type="number" id="cfg-breed-level" value="60" required min="1">
+            </div>
+            <div class="config-field">
+              <label>Breeding Cost ($PETCOIN)</label>
+              <input type="number" id="cfg-breed-petcoin" value="100000" required min="0">
+            </div>
+            <div class="config-field">
+              <label>Breeding Cost ($DESK)</label>
+              <input type="number" id="cfg-breed-desk" value="5000" required min="0">
+            </div>
+
+            <h4 style="color:#ffd700; margin:16px 0 8px 0;">Staking Expedition Fees</h4>
+            <div class="config-field">
+              <label>2h Expedition Fee ($PETCOIN)</label>
+              <input type="number" id="cfg-fee-2h" value="0" required min="0">
+            </div>
+            <div class="config-field">
+              <label>4h Expedition Fee ($PETCOIN)</label>
+              <input type="number" id="cfg-fee-4h" value="20" required min="0">
+            </div>
+            <div class="config-field">
+              <label>8h Expedition Fee ($PETCOIN)</label>
+              <input type="number" id="cfg-fee-8h" value="50" required min="0">
+            </div>
+
+            <h4 style="color:#ffb700; margin:16px 0 8px 0;">PvP & Arena Configuration</h4>
+            <div class="config-field">
+              <label>Base Win Reward ($PETCOIN)</label>
+              <input type="number" id="cfg-arena-win" value="500" required min="0">
+            </div>
+            <div class="config-field">
+              <label>Base Loss Reward ($PETCOIN)</label>
+              <input type="number" id="cfg-arena-loss" value="100" required min="0">
+            </div>
+
+            <button type="submit" class="hud-btn glow-cyan" style="width:100%; margin-top:12px; padding:10px;">COMMIT VALUES TO DATABASE</button>
+          </form>
+        </section>
+
+        <!-- User Accounts & DB Administration -->
+        <section class="glass-card">
+          <h3>USER MANAGEMENT & AUDITS</h3>
+          <p style="font-size:12px; color:rgba(255,255,255,0.5); margin-bottom:16px;">Monitor user profiles, flag tokens manipulation, or manually award test balances.</p>
+          
+          <div class="rename-box">
+            <input type="text" id="admin-user-search" placeholder="Search by email address...">
+            <button id="btn-admin-search">Search</button>
+          </div>
+
+          <div class="user-list" id="admin-user-list">
+            <div style="text-align:center; color:rgba(255,255,255,0.4); padding:20px 0;">Search or load profiles...</div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="supabase.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DeskPet Control Panel</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="popup-container">
+    <header class="header">
+      <h1 class="title">DESKPET</h1>
+      <span class="version">v1.0 MVP</span>
+    </header>
+
+    <div class="pet-display-card">
+      <div class="glow-ring"></div>
+      <div id="active-pet-render" style="width:120px; height:120px; display:flex; align-items:center; justify-content:center; overflow:hidden;"></div>
+      <div id="sleep-overlay" class="hidden">
+        <span class="sleep-zzz">Zzz...</span>
+      </div>
+    </div>
+
+    <div class="pet-identity">
+      <h2 id="pet-name">Neon Buddy</h2>
+      <div id="pet-level-badge">LEVEL 1</div>
+    </div>
+
+    <div class="stats-section">
+      <div class="stat-row">
+        <div class="stat-header">
+          <span>XP</span>
+          <span id="xp-text">0 / 50</span>
+        </div>
+        <div class="bar-outer">
+          <div id="xp-bar" class="bar-inner xp-color" style="width: 0%"></div>
+        </div>
+      </div>
+
+      <div class="stat-row">
+        <div class="stat-header">
+          <span>Energy</span>
+          <span id="energy-text">80%</span>
+        </div>
+        <div class="bar-outer">
+          <div id="energy-bar" class="bar-inner energy-color" style="width: 80%"></div>
+        </div>
+      </div>
+
+      <div class="stat-row">
+        <div class="stat-header">
+          <span>Happiness</span>
+          <span id="happiness-text">80%</span>
+        </div>
+        <div class="bar-outer">
+          <div id="happiness-bar" class="bar-inner happiness-color" style="width: 80%"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="actions-grid">
+      <button id="btn-pet" class="action-btn">
+        <span class="btn-icon">👋</span> Pet
+      </button>
+      <button id="btn-feed" class="action-btn">
+        <span class="btn-icon">🍖</span> Feed
+      </button>
+      <button id="btn-sleep" class="action-btn">
+        <span class="btn-icon">🌙</span> <span id="sleep-btn-text">Sleep</span>
+      </button>
+      <button id="btn-dashboard" class="action-btn primary-glow">
+        <span class="btn-icon">🚀</span> HUD
+      </button>
+    </div>
+
+    <div class="desktop-controls" style="display: flex; gap: 8px; margin-bottom: 8px;">
+      <button id="btn-toggle-float" class="action-btn" style="flex: 1; font-size: 10px; padding: 6px 0; position: relative;">
+        <span id="float-status-dot" style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#39ff14;margin-right:4px;vertical-align:middle;"></span>
+        <span id="float-btn-label">Hide Web Pet</span>
+      </button>
+    </div>
+
+    <footer class="footer">
+      <div class="solana-status">
+        <span class="sol-dot"></span> Web3 Simulation Active
+      </div>
+    </footer>
+  </div>
+
+  <script src="solana-web3.min.js"></script>
+  <script src="pet_assets.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

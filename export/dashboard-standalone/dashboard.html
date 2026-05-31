@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DeskPet - Core Control Station & HUD</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Share+Tech+Mono&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+  <div class="dashboard-wrapper">
+    <!-- Neon grid background overlays -->
+    <div class="grid-overlay"></div>
+    <div class="glow-spotlight text-glow"></div>
+
+    <!-- Main Header -->
+    <header class="main-header">
+      <div class="header-logo">
+        <span class="logo-accent">⚡</span> DESKPET STATION
+      </div>
+      
+      <div class="web3-badge-container">
+        <div id="wallet-hud" class="wallet-hud">
+          <span class="token-balance"><span id="desk-balance">0.00</span> $DESK</span>
+          <button id="btn-wallet-connect" class="wallet-btn">Connect Phantom</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Grid Layout -->
+    <div class="dashboard-grid">
+      
+      <!-- LEFT SECTION: Arena & Stats -->
+      <section class="grid-col left-panel">
+        <div class="glass-card pet-playpen">
+          <div class="card-header">
+            <h3>PET ARENA</h3>
+            <span class="live-indicator"><span class="pulse-dot"></span> LIVE OVERLAY</span>
+          </div>
+
+          <div class="canvas-container">
+            <div class="retro-grid-floor"></div>
+            <canvas id="arena-canvas" width="200" height="200"></canvas>
+            
+            <!-- Dynamic stats floating badges -->
+            <div class="arena-stats-overlay">
+              <span id="arena-pet-name">Neon Buddy</span>
+              <span id="arena-pet-level">Lv. 1</span>
+            </div>
+            
+            <div id="arena-sleep-screen" class="hidden">
+              <div class="zzzz-anim">Zzz... Zzz...</div>
+            </div>
+          </div>
+
+          <div class="pet-controls">
+            <div class="control-actions">
+              <button id="arena-btn-pet" class="hud-btn glow-cyan">👋 Pet</button>
+              <button id="arena-btn-feed" class="hud-btn glow-pink">🍖 Feed</button>
+              <button id="arena-btn-sleep" class="hud-btn">🌙 Toggle Sleep</button>
+              <button id="btn-share-x" class="hud-btn glow-gold">🐦 Share to X</button>
+            </div>
+            
+            <!-- Rename & Skin Customizer -->
+            <div class="customizer-subpanel">
+              <div class="rename-box">
+                <input type="text" id="input-rename" placeholder="Rename Pet..." maxlength="15">
+                <button id="btn-rename">Save</button>
+              </div>
+              <div class="skin-selector">
+                <span>SKIN:</span>
+                <button class="skin-dot cyan active" data-skin="neon-cyan" title="Cyan Glow"></button>
+                <button class="skin-dot pink" data-skin="neon-pink" title="Pink Flame"></button>
+                <button class="skin-dot green" data-skin="neon-green" title="Green Aura"></button>
+                <button class="skin-dot gold" data-skin="neon-gold" title="Divine Light"></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- STATS & DYNAMIC TRAITS CARD -->
+        <div class="glass-card stat-allocator">
+          <h3>PET SPECS & DYNAMICS</h3>
+          <div class="stats-overview">
+            <div class="spec-column">
+              <div class="spec-item">
+                <span class="spec-label">STRENGTH</span>
+                <span id="stat-str-val" class="spec-value">5</span>
+                <button class="stat-plus-btn" data-stat="strength">+</button>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">INTELLIGENCE</span>
+                <span id="stat-int-val" class="spec-value">5</span>
+                <button class="stat-plus-btn" data-stat="intelligence">+</button>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">CHARM</span>
+                <span id="stat-chm-val" class="spec-value">5</span>
+                <button class="stat-plus-btn" data-stat="charm">+</button>
+              </div>
+            </div>
+            <div class="points-pool">
+              <div class="pool-title">ALLOCATABLE POINTS</div>
+              <div id="stat-points-pool" class="pool-val">0</div>
+            </div>
+          </div>
+
+          <div class="xp-progress-large">
+            <div class="progress-labels">
+              <span>XP BAR</span>
+              <span id="hud-xp-ratio">0 / 50</span>
+            </div>
+            <div class="hud-bar-outer">
+              <div id="hud-xp-bar" class="hud-bar-inner xp-bar-grad" style="width: 0%"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CENTER SECTION: Games & Play -->
+      <section class="grid-col center-panel">
+        <div class="glass-card game-module">
+          <div class="card-header tabs">
+            <button class="tab-btn active" data-tab="memory">MEMORY MATCH</button>
+            <button class="tab-btn" data-tab="runner">NEON RUNNER</button>
+            <button class="tab-btn" data-tab="clicker">QUICK CLICKER</button>
+          </div>
+
+          <div class="game-container">
+            
+            <!-- MEMORY MATCH GAME -->
+            <div id="game-tab-memory" class="tab-content active">
+              <div class="game-intro">
+                <h4>Grid Memory Match</h4>
+                <p>Find matching cards. Complete to earn +20 XP & +10 $DESK.</p>
+                <button id="btn-start-memory" class="hud-btn glow-green">Start Game</button>
+              </div>
+              <div id="memory-grid" class="memory-grid hidden">
+                <!-- Cards injected via JS -->
+              </div>
+              <div id="memory-victory" class="victory-overlay hidden">
+                <h3>VICTORY!</h3>
+                <p>Rewards Gained: <span class="green-text">+20 XP | +10 $DESK</span></p>
+                <button id="btn-reset-memory" class="hud-btn">Play Again</button>
+              </div>
+            </div>
+
+            <!-- NEON RUNNER GAME -->
+            <div id="game-tab-runner" class="tab-content">
+              <div class="game-intro" id="runner-intro">
+                <h4>Neon Obstacle Runner</h4>
+                <p>Press SPACEBAR or click/tap to jump over barriers. Reach 150 points to claim +30 XP & +15 $DESK.</p>
+                <button id="btn-start-runner" class="hud-btn glow-cyan">Boot Runner</button>
+              </div>
+              <div class="runner-canvas-wrap hidden" id="runner-wrap">
+                <div class="runner-score-hud">SCORE: <span id="runner-score">0</span></div>
+                <canvas id="runner-canvas" width="460" height="200"></canvas>
+              </div>
+              <div id="runner-gameover" class="victory-overlay hidden">
+                <h3 id="runner-status-title">GAME OVER</h3>
+                <p id="runner-reward-msg">Score: 0. Reached milestone: No.</p>
+                <button id="btn-reset-runner" class="hud-btn">Restart Game</button>
+              </div>
+            </div>
+
+            <!-- CLICKER GAME -->
+            <div id="game-tab-clicker" class="tab-content">
+              <div class="clicker-wrap">
+                <h4>Interactive Pet clicker</h4>
+                <p>Rapidly click your pet to feed and pet it! Each click adds energy and happiness points.</p>
+                <div class="clicker-target-circle" id="clicker-zone">
+                  <span id="clicker-effect-text" class="clicker-pop-text">+1 XP</span>
+                  <div class="clicker-neon-core">🍖</div>
+                </div>
+                <div class="clicker-stats">
+                  <span>CLICKS: <span id="clicker-count">0</span></span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- DAILY QUESTS CARD -->
+        <div class="glass-card quests-panel">
+          <h3>DAILY BOUNTY BOARD</h3>
+          <div id="quests-list" class="quests-list">
+            <!-- Quests injected via JS -->
+          </div>
+        </div>
+      </section>
+
+      <!-- RIGHT SECTION: Solana Web3 Sandbox -->
+      <section class="grid-col right-panel">
+        <div class="glass-card web3-card">
+          <div class="card-header">
+            <h3>SOLANA CORE NFT HUB</h3>
+            <span class="token-ticker">SPL-2022</span>
+          </div>
+
+          <div class="web3-body">
+            <!-- Connection State -->
+            <div class="wallet-status-box">
+              <div class="status-indicator">
+                <span id="hud-wallet-dot" class="dot-red"></span> 
+                <span id="hud-wallet-text">Wallet Disconnected</span>
+              </div>
+              <div id="wallet-pubkey" class="pubkey-text">Connect to load Solana wallet...</div>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- Mint Section -->
+            <div class="web3-section">
+              <h4>DYNAMIC NFT MINT</h4>
+              <p class="description">Mint your level 10+ pet into a Metaplex Core NFT. Dynamic traits update on-chain.</p>
+              
+              <div class="mint-requirements">
+                <div class="req-item">
+                  <span>Min Level: 10</span>
+                  <span id="req-level-check" class="req-check invalid">❌</span>
+                </div>
+                <div class="req-item">
+                  <span>NFT Status:</span>
+                  <span id="req-mint-check" class="req-check">Not Minted</span>
+                </div>
+              </div>
+              
+              <button id="btn-mint-nft" class="web3-action-btn" disabled>MINT METAPLEX NFT</button>
+              <div id="mint-tx-display" class="tx-display hidden">
+                <div class="tx-label">MINT HASH (SOLANA DEVNET):</div>
+                <div id="tx-hash-link" class="tx-link">None</div>
+              </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- $DESK Yield Section -->
+            <div class="web3-section">
+              <h4>$DESK PASSIVE YIELD</h4>
+              <p class="description">Pets earn SPL token yield over time. Yield is boosted by level, traits, and rarity.</p>
+              <div class="yield-hud">
+                <div class="yield-rate">
+                  <span class="label">Daily Rate</span>
+                  <span id="yield-rate-val" class="val">1.20 $DESK/hr</span>
+                </div>
+                <div class="yield-accumulated">
+                  <span class="label">Claimable</span>
+                  <span id="yield-claimable-val" class="val glow-text">0.0000 $DESK</span>
+                </div>
+              </div>
+              <button id="btn-claim-yield" class="web3-action-btn glow-pink" disabled>CLAIM $DESK YIELD</button>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- Breeding Section -->
+            <div class="web3-section">
+              <h4>BREEDING LAB (BURNS $DESK)</h4>
+              <p class="description">Combine two adult pets to breed a rare egg. Costs 100 $DESK.</p>
+              <div class="breeding-inputs">
+                <div class="breed-slot">
+                  <div class="breed-slot-avatar">🧬</div>
+                  <span>Parent A</span>
+                </div>
+                <div class="breed-slot">
+                  <div class="breed-slot-avatar">🧬</div>
+                  <span>Parent B</span>
+                </div>
+              </div>
+              <button id="btn-breed-pets" class="web3-action-btn" disabled>INITIATE BREEDING (100 $DESK)</button>
+              <div id="breed-success-msg" class="breed-success-overlay hidden">
+                <span>🥚 BRED AN EPIC EGG!</span>
+                <p>New pet added to inventory.</p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <script src="pet-engine.js"></script>
+  <script src="dashboard.js"></script>
+</body>
+</html>

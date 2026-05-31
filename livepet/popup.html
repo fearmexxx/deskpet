@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CyberPet Companion</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="glass-container">
+    <!-- Header -->
+    <header>
+      <div class="brand">
+        <div class="logo-orb"></div>
+        <h1>CYBER<span>PET</span></h1>
+      </div>
+      <div class="header-right">
+        <div class="user-badge hidden" id="user-profile-badge">
+          <span class="user-avatar">👤</span>
+          <span class="user-email" id="user-email">dev@gmail.com</span>
+          <button class="logout-btn" id="btn-logout" title="Log out">✖</button>
+        </div>
+        <div class="wallet-badge" id="wallet-connect">
+          <span class="dot"></span>
+          <span id="wallet-status">Connect Wallet</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Subheader stats -->
+    <div class="subheader-bar">
+      <div class="coin-badge">💰 <span id="val-petcoin">100</span> $PETCOIN</div>
+      <button class="sleep-toggle-btn" id="btn-sleep">
+        <span id="sleep-icon">🌙</span> <span id="sleep-text">Sleep</span>
+      </button>
+    </div>
+
+    <!-- Active Pet Showcase -->
+    <main class="pet-showcase">
+      <div class="stage-tag" id="pet-stage">Baby</div>
+      <div class="pet-canvas" id="active-pet-render">
+        <!-- SVG injected dynamically -->
+      </div>
+      <h2 id="pet-name">Sol-Cat</h2>
+      <div class="level-badge">LVL <span id="pet-level">1</span></div>
+      
+      <!-- XP Progress -->
+      <div class="xp-container">
+        <div class="xp-bar-outer">
+          <div class="xp-bar-inner" id="pet-xp-bar" style="width: 0%;"></div>
+        </div>
+        <div class="xp-label">XP: <span id="pet-xp">0</span>/<span id="pet-xp-needed">100</span></div>
+      </div>
+
+      <!-- RPG Stats Allocation Grid -->
+      <div class="rpg-stats-container">
+        <div class="points-badge hidden" id="points-alert">
+          ⭐ Available Points: <span id="val-points">0</span>
+        </div>
+        <div class="rpg-stat-grid">
+          <div class="rpg-stat-item">
+            <span class="stat-name">STR</span>
+            <span class="stat-num" id="val-str">10</span>
+            <button class="allocate-btn hidden" data-stat="strength">+</button>
+          </div>
+          <div class="rpg-stat-item">
+            <span class="stat-name">AGI</span>
+            <span class="stat-num" id="val-agi">10</span>
+            <button class="allocate-btn hidden" data-stat="agility">+</button>
+          </div>
+          <div class="rpg-stat-item">
+            <span class="stat-name">INT</span>
+            <span class="stat-num" id="val-int">10</span>
+            <button class="allocate-btn hidden" data-stat="intelligence">+</button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Stats Panel -->
+    <section class="panel stats-panel">
+      <h3>Companion Vitals</h3>
+      <div class="stat-row">
+        <span class="stat-label">Hunger</span>
+        <div class="meter-outer">
+          <div class="meter-inner hunger" id="stat-hunger" style="width: 80%;"></div>
+        </div>
+        <span class="stat-val" id="val-hunger">80/100</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Happiness</span>
+        <div class="meter-outer">
+          <div class="meter-inner happiness" id="stat-happiness" style="width: 80%;"></div>
+        </div>
+        <span class="stat-val" id="val-happiness">80/100</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Energy</span>
+        <div class="meter-outer">
+          <div class="meter-inner energy" id="stat-energy" style="width: 80%;"></div>
+        </div>
+        <span class="stat-val" id="val-energy">80/100</span>
+      </div>
+    </section>
+
+    <!-- Consumables Store Panel -->
+    <section class="panel shop-panel">
+      <h3>Pack & Cyber Store</h3>
+      <div class="shop-grid">
+        <div class="shop-card">
+          <div class="item-header">
+            <span class="icon">Treat 🍗</span>
+            <small>+25 Hunger</small>
+          </div>
+          <div class="shop-buy-row">
+            <span class="qty">In Pack: <strong id="inv-treat">0</strong></span>
+            <button class="use-btn" data-item="treat">Use</button>
+          </div>
+          <button class="buy-btn" data-item="treat" data-cost="10">Buy (10💰)</button>
+        </div>
+
+        <div class="shop-card">
+          <div class="item-header">
+            <span class="icon">Toy 🧶</span>
+            <small>+30 Happy</small>
+          </div>
+          <div class="shop-buy-row">
+            <span class="qty">In Pack: <strong id="inv-toy">0</strong></span>
+            <button class="use-btn" data-item="toy">Use</button>
+          </div>
+          <button class="buy-btn" data-item="toy" data-cost="15">Buy (15💰)</button>
+        </div>
+
+        <div class="shop-card">
+          <div class="item-header">
+            <span class="icon">Battery ⚡</span>
+            <small>+40 Energy</small>
+          </div>
+          <div class="shop-buy-row">
+            <span class="qty">In Pack: <strong id="inv-battery">0</strong></span>
+            <button class="use-btn" data-item="battery">Use</button>
+          </div>
+          <button class="buy-btn" data-item="battery" data-cost="20">Buy (20💰)</button>
+        </div>
+
+        <div class="shop-card">
+          <div class="item-header">
+            <span class="icon">Mutagen 🧪</span>
+            <small>+1-3 Random Stat</small>
+          </div>
+          <div class="shop-buy-row">
+            <span class="qty">In Pack: <strong id="inv-mutagen">0</strong></span>
+            <button class="use-btn" data-item="mutagen">Use</button>
+          </div>
+          <button class="buy-btn" data-item="mutagen" data-cost="100">Buy (100💰)</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Pomodoro Focus Timer Panel -->
+    <section class="panel focus-panel">
+      <h3>Productive Focus Mode</h3>
+      <div class="focus-timer-box">
+        <div class="timer-main">
+          <div class="timer-clock" id="focus-timer-text">25:00</div>
+          <div class="timer-sub" id="focus-status-text">Ready to Focus</div>
+        </div>
+        <div class="timer-controls">
+          <select id="focus-duration">
+            <option value="1">1 Min (Test)</option>
+            <option value="15">15 Min</option>
+            <option value="25" selected>25 Min</option>
+            <option value="50">50 Min</option>
+          </select>
+          <button class="focus-btn" id="btn-focus-toggle">Start Focus</button>
+        </div>
+        <div class="focus-payout">Reward: <strong id="val-reward">20</strong> $PETCOIN</div>
+      </div>
+    </section>
+
+    <!-- Stable / Pet Switching -->
+    <section class="panel stable-panel">
+      <h3>Pet Stable</h3>
+      <div class="stable-grid">
+        <div class="stable-item active" data-pet-id="sol-cat">
+          <div class="thumb neon-green">🐈</div>
+          <span class="name">Sol-Cat</span>
+        </div>
+        <div class="stable-item" data-pet-id="astro-dog">
+          <div class="thumb neon-orange">🐕</div>
+          <span class="name">Astro-Dog</span>
+        </div>
+        <div class="stable-item" data-pet-id="cyber-bunny">
+          <div class="thumb neon-pink">🐇</div>
+          <span class="name">Cyber-Bunny</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Solana dynamic NFT RPG Panel -->
+    <section class="panel web3-panel">
+      <div class="panel-header-btn">
+        <h3>Solana Dynamic NFT Sandbox</h3>
+        <button class="collapse-btn" id="btn-toggle-web3">Show</button>
+      </div>
+      <div class="web3-content hidden" id="web3-drawer">
+        <p class="web3-intro">Level up your companion on-screen, then sync state into metadata matching Metaplex dynamic standard.</p>
+        
+        <div class="mint-zone">
+          <button class="web3-action-btn disabled" id="btn-mint-nft">Mint Solana NFT</button>
+          <div class="mint-status" id="nft-mint-status">Connect wallet to mint NFT</div>
+        </div>
+
+        <div class="metadata-inspector">
+          <div class="inspector-header">
+            <span>dynamic_nft_metadata.json</span>
+            <button id="btn-copy-meta">Copy</button>
+          </div>
+          <pre id="metadata-preview">{ ... }</pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- API Sync Console Panel -->
+    <section class="panel api-sync-panel">
+      <div class="panel-header-btn">
+        <h3>Off-chain Database Sync Logs</h3>
+        <button class="collapse-btn" id="btn-toggle-sync">Show</button>
+      </div>
+      <div class="sync-content hidden" id="sync-drawer">
+        <div class="sync-status-row">
+          <span>Server: <strong class="online" id="val-server-status">OFFLINE</strong></span>
+          <span>Last Sync: <strong id="val-last-sync">Never</strong></span>
+        </div>
+        <div class="console-box">
+          <div class="console-logs" id="sync-console-logs">
+            <div class="log-line info">[System] Ready. Log in to sync.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Social Auth Gateway Overlay -->
+  <div class="auth-gateway-overlay hidden" id="auth-gateway">
+    <div class="auth-box">
+      <div class="auth-glow-border"></div>
+      <div class="logo-orb large"></div>
+      <h2>CYBER<span>PET</span></h2>
+      <p class="auth-tagline">Onboard to Solana Dynamic NFT RPG</p>
+
+      <!-- Live Email/Password Credentials Form -->
+      <form class="auth-login-form hidden" id="auth-credential-form">
+        <input type="email" id="auth-email-input" placeholder="Email Address" required>
+        <input type="password" id="auth-password-input" placeholder="Password" required>
+        <div class="auth-form-buttons">
+          <button class="auth-submit-btn" id="btn-signin">Sign In</button>
+          <button class="auth-submit-btn signup-secondary" id="btn-signup">Sign Up</button>
+        </div>
+      </form>
+
+      <small class="auth-footer" id="auth-footer-text">Creates a secure embedded Solana wallet instantly</small>
+    </div>
+  </div>
+
+  <!-- Custom Glassmorphic Alert Modal -->
+  <div class="custom-modal-overlay hidden" id="custom-alert-modal">
+    <div class="custom-modal-box">
+      <div class="modal-glow-border"></div>
+      <span class="modal-icon" id="custom-modal-icon">⚠️</span>
+      <h4 id="custom-modal-title">Alert</h4>
+      <p id="custom-modal-message">Insufficient $PETCOIN</p>
+      <button class="modal-close-btn" id="btn-close-modal">Got it</button>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="supabase.js"></script>
+  <script src="../solana-web3.min.js"></script>
+  <script src="pet_assets.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

@@ -1,0 +1,282 @@
+/* DeskPet - Floating Overlay Style Sheet */
+
+#deskpet-root {
+  position: fixed;
+  z-index: 2147483647; /* Maximum possible z-index to overlay everything */
+  width: 80px;
+  height: 80px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.1s ease;
+  font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+  user-select: none;
+}
+
+#deskpet-root.dragging {
+  transform: scale(1.05);
+}
+
+/* Invisible hover bridge to cover tooltip, menu, and side gaps only during active hover */
+#deskpet-root::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  pointer-events: none;
+  z-index: -1;
+}
+
+#deskpet-root:hover::before {
+  top: -85px;
+  bottom: -45px;
+  left: -80px;
+  right: -80px;
+  height: auto;
+  width: auto;
+  pointer-events: auto;
+}
+
+#deskpet-canvas {
+  width: 100%;
+  height: 100%;
+  cursor: grab;
+  filter: drop-shadow(0 0 4px rgba(0, 240, 255, 0.3));
+  transition: filter 0.3s ease;
+}
+
+#deskpet-root:hover #deskpet-canvas {
+  filter: drop-shadow(0 0 10px rgba(0, 240, 255, 0.7));
+}
+
+/* Glassmorphic hover tooltip overlay */
+#deskpet-tooltip {
+  position: absolute;
+  bottom: 76px;
+  background: rgba(15, 10, 25, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(0, 240, 255, 0.25);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6), inset 0 0 10px rgba(0, 240, 255, 0.1);
+  border-radius: 8px;
+  padding: 8px 12px;
+  width: 130px;
+  opacity: 0;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: #fff;
+  transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1), transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateY(5px);
+  font-size: 11px;
+  line-height: 1.2;
+}
+
+#deskpet-root:hover #deskpet-tooltip {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.deskpet-name {
+  font-weight: bold;
+  color: #00f0ff;
+  text-shadow: 0 0 8px rgba(0, 240, 255, 0.6);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.deskpet-level {
+  font-size: 9px;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.deskpet-bar-bg {
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 2px;
+  overflow: hidden;
+  margin: 2px 0;
+}
+
+.deskpet-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #00f0ff, #ff00bf);
+  box-shadow: 0 0 5px #00f0ff;
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+.deskpet-stats {
+  font-size: 9px;
+  color: rgba(255, 255, 255, 0.6);
+  text-align: center;
+}
+
+/* Quick Action Menu */
+#deskpet-menu {
+  position: absolute;
+  top: 76px;
+  display: flex;
+  gap: 4px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1), transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateY(-5px);
+  background: rgba(15, 10, 25, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 0, 191, 0.2);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+  padding: 4px;
+  border-radius: 6px;
+  z-index: 1000;
+}
+
+#deskpet-root:hover #deskpet-menu {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+#deskpet-menu button {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font-size: 9px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+#deskpet-menu button:hover {
+  background: rgba(255, 0, 191, 0.2);
+  border-color: #ff00bf;
+  text-shadow: 0 0 5px #ff00bf;
+  box-shadow: 0 0 8px rgba(255, 0, 191, 0.3);
+  transform: translateY(-1px);
+}
+
+#deskpet-menu button#deskpet-btn-close {
+  background: rgba(255, 50, 50, 0.1);
+  border-color: rgba(255, 50, 50, 0.2);
+}
+
+#deskpet-menu button#deskpet-btn-close:hover {
+  background: rgba(255, 50, 50, 0.3);
+  border-color: #ff3333;
+  box-shadow: 0 0 8px rgba(255, 50, 50, 0.4);
+}
+
+/* CyberPet SVG Animator Classes */
+.pet-svg {
+  transition: all 0.3s ease;
+  width: 80px;
+  height: 80px;
+  display: block;
+}
+
+.pet-svg.idle {
+  animation: bounce 2s infinite ease-in-out;
+}
+
+.pet-svg.walk {
+  animation: walk 0.6s infinite linear;
+}
+
+.pet-svg.happy {
+  animation: bounce 0.6s infinite ease-in-out;
+}
+
+.pet-svg.eat {
+  animation: shake 0.4s infinite ease-in-out;
+}
+
+.pet-svg.sleep {
+  opacity: 0.85;
+  animation: bounce 4s infinite ease-in-out;
+}
+
+/* SVG part animations */
+.tail-anim {
+  transform-origin: 68px 65px;
+  animation: tailWiggle 1.5s infinite ease-in-out;
+}
+
+.ear-left-anim {
+  animation: earLeftWiggle 3s infinite ease-in-out;
+}
+
+.ear-right-anim {
+  animation: earRightWiggle 3.2s infinite ease-in-out;
+}
+
+.z-anim {
+  animation: floatUp 2s infinite linear;
+  transform-origin: bottom;
+}
+
+.z-anim-delayed {
+  animation: floatUp 2s infinite linear;
+  animation-delay: 1s;
+}
+
+.food-anim {
+  animation: foodBounce 1s infinite ease-in-out;
+}
+
+/* Keyframes - Squash & Stretch Animation Principles */
+@keyframes bounce {
+  0%, 100% { transform: translateY(0) scale(1, 1); }
+  50% { transform: translateY(-10px) scale(0.9, 1.1); }
+  75% { transform: translateY(2px) scale(1.05, 0.95); }
+}
+
+@keyframes walk {
+  0%, 100% { transform: translateY(0) rotate(0deg) scale(1, 1); }
+  25% { transform: translateY(-4px) rotate(-5deg) scale(0.95, 1.05); }
+  50% { transform: translateY(1px) rotate(0deg) scale(1.03, 0.97); }
+  75% { transform: translateY(-4px) rotate(5deg) scale(0.95, 1.05); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: rotate(0deg) scale(1, 1); }
+  25% { transform: rotate(-8deg) scale(1.05, 0.95); }
+  75% { transform: rotate(8deg) scale(0.95, 1.05); }
+}
+
+@keyframes tailWiggle {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(20deg); }
+}
+
+@keyframes earLeftWiggle {
+  0%, 100%, 85% { transform: rotate(0deg); }
+  92% { transform: rotate(-12deg); }
+}
+
+@keyframes earRightWiggle {
+  0%, 100%, 82% { transform: rotate(0deg); }
+  90% { transform: rotate(12deg); }
+}
+
+@keyframes floatUp {
+  0% { transform: translate(0, 0) scale(0.5); opacity: 0; }
+  20% { opacity: 1; }
+  100% { transform: translate(12px, -22px) scale(1.3); opacity: 0; }
+}
+
+@keyframes foodBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+

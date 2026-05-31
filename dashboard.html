@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DeskPet - Core Control Station & HUD</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Share+Tech+Mono&family=Rajdhani:wght@500;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="dashboard.css">
+</head>
+
+<body>
+  <div class="dashboard-wrapper">
+    <!-- Neon grid background overlays -->
+    <div class="grid-overlay"></div>
+    <div class="glow-spotlight text-glow"></div>
+
+    <!-- Main Header -->
+    <header class="main-header">
+      <div class="header-logo">
+        <span class="logo-accent">⚡</span> DESKPET STATION
+      </div>
+
+      <div class="web3-badge-container">
+        <div id="wallet-hud" class="wallet-hud" style="display:flex; gap:12px; align-items:center;">
+          <a id="admin-panel-link" href="admin.html" class="hud-btn hidden"
+            style="font-size:11px; padding:6px 10px; border-color:#ff007f; color:#ff007f; text-decoration:none;">🛡️
+            Admin</a>
+          <span class="token-balance" style="color:var(--color-cyan); font-weight:700;"><span
+              id="petcoin-balance">0.00</span> $PETCOIN</span>
+          <span class="token-balance" style="color:var(--color-pink); font-weight:700;"><span
+              id="desk-balance">0.0000</span> $DESK</span>
+          <button id="btn-wallet-connect" class="wallet-btn">Connect Wallet</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Grid Layout -->
+    <div class="dashboard-grid">
+
+      <!-- LEFT SECTION: Arena & Stats -->
+      <section class="grid-col left-panel">
+        <div class="glass-card pet-playpen">
+          <div class="card-header">
+            <h3>PET ARENA</h3>
+            <span class="live-indicator"><span class="pulse-dot"></span> LIVE OVERLAY</span>
+          </div>
+
+          <div class="canvas-container">
+            <div class="retro-grid-floor"></div>
+            <div id="active-pet-render"
+              style="width:200px; height:200px; display:flex; align-items:center; justify-content:center; overflow:hidden;">
+            </div>
+
+            <!-- Dynamic stats floating badges -->
+            <div class="arena-stats-overlay">
+              <span id="arena-pet-name">Neon Buddy</span>
+              <span id="arena-pet-level">Lv. 1</span>
+            </div>
+
+            <div id="arena-sleep-screen" class="hidden">
+              <div class="zzzz-anim">Zzz... Zzz...</div>
+            </div>
+          </div>
+
+          <!-- Arena Equipment Panel: hidden by default, toggled with ⚔️ button -->
+          <div id="arena-equipment-panel" style="display:none; padding:6px 0;">
+            <div
+              style="text-align:center; font-size:9px; color:rgba(255,255,255,0.35); margin-bottom:8px; letter-spacing:0.5px;">
+              Click equipped gear to UNEQUIP &nbsp;|&nbsp; Find gear in raids</div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; justify-items:stretch;">
+              <!-- Weapon Slot -->
+              <div class="equip-slot" id="slot-weapon" data-slot="weapon" title="Weapon — STR/INT. 4h/8h raids only.">
+                <div class="equip-slot-label">⚔️ WEAPON</div>
+                <div class="equip-slot-item" id="equip-weapon-name">Empty</div>
+                <div class="equip-slot-stats" id="equip-weapon-stats"></div>
+              </div>
+              <!-- Head Slot -->
+              <div class="equip-slot" id="slot-head" data-slot="head" title="Head — STA/INT. All raids.">
+                <div class="equip-slot-label">🪖 HEAD</div>
+                <div class="equip-slot-item" id="equip-head-name">Empty</div>
+                <div class="equip-slot-stats" id="equip-head-stats"></div>
+              </div>
+              <!-- Clothes Slot -->
+              <div class="equip-slot" id="slot-clothes" data-slot="clothes" title="Clothes — STA/AGI. All raids.">
+                <div class="equip-slot-label">👕 CLOTHES</div>
+                <div class="equip-slot-item" id="equip-clothes-name">Empty</div>
+                <div class="equip-slot-stats" id="equip-clothes-stats"></div>
+              </div>
+              <!-- AI Chip Slot -->
+              <div class="equip-slot" id="slot-aiChip" data-slot="aiChip"
+                title="AI Chip — AGI/INT/STA. 4h/8h raids only.">
+                <div class="equip-slot-label">💾 AI CHIP</div>
+                <div class="equip-slot-item" id="equip-aiChip-name">Empty</div>
+                <div class="equip-slot-stats" id="equip-aiChip-stats"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pet-controls">
+            <div class="control-actions">
+              <button id="arena-btn-pet" class="hud-btn glow-cyan">👋 Pet</button>
+              <button id="arena-btn-feed" class="hud-btn glow-pink">🥖 Feed</button>
+              <button id="arena-btn-sleep" class="hud-btn">🌙 Toggle Sleep</button>
+              <button id="btn-share-x" class="hud-btn glow-gold">🐦 Share to X</button>
+            </div>
+            <!-- Gear Toggle Button -->
+            <button id="arena-btn-gear" class="hud-btn"
+              style="width:100%; margin-top:4px; border-color:rgba(189,0,255,0.4); color:rgba(255,255,255,0.7); font-size:10px; padding:6px 0;">⚔️
+              Equipment Slots</button>
+
+            <!-- Rename & Skin Customizer -->
+            <div class="customizer-subpanel">
+              <div class="rename-box">
+                <input type="text" id="input-rename" placeholder="Rename Pet..." maxlength="15">
+                <button id="btn-rename">Save</button>
+              </div>
+              <div class="skin-selector">
+                <span>SKIN:</span>
+                <button class="skin-dot cyan active" data-skin="neon-cyan" title="Cyan Glow"></button>
+                <button class="skin-dot pink" data-skin="neon-pink" title="Pink Flame"></button>
+                <button class="skin-dot green" data-skin="neon-green" title="Green Aura"></button>
+                <button class="skin-dot gold" data-skin="neon-gold" title="Divine Light"></button>
+                <button id="skin-dot-purple" class="skin-dot purple hidden" data-skin="neon-purple" title="Purple Glow"
+                  style="background:#a020f0;"></button>
+                <button id="skin-dot-matrix" class="skin-dot matrix hidden" data-skin="neon-matrix" title="Matrix Glow"
+                  style="background:#39ff14;"></button>
+                <button id="skin-dot-rainbow" class="skin-dot rainbow hidden" data-skin="neon-rainbow"
+                  title="Rainbow Glow"
+                  style="background:linear-gradient(to right, red,orange,yellow,green,blue,indigo,violet);"></button>
+              </div>
+            </div>
+
+            <!-- Pet Stable Switcher -->
+            <div class="stable-selector"
+              style="margin-top: 12px; display: flex; gap: 8px; justify-content: center; align-items: center;">
+              <span>STABLE:</span>
+              <button class="hud-btn stable-btn active" data-pet-id="sol-cat"
+                style="font-size: 11px; padding: 4px 8px;">🐈 Sol-Cat</button>
+              <button class="hud-btn stable-btn" data-pet-id="astro-dog" style="font-size: 11px; padding: 4px 8px;">🐕
+                Astro-Dog</button>
+              <button class="hud-btn stable-btn" data-pet-id="cyber-bunny" style="font-size: 11px; padding: 4px 8px;">🐇
+                Cyber-Bunny</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- STATS & DYNAMIC TRAITS CARD -->
+        <div class="glass-card stat-allocator">
+          <h3>PET SPECS & DYNAMICS</h3>
+          <div class="stats-overview">
+            <div class="spec-column">
+              <div class="spec-item">
+                <span class="spec-label">STRENGTH</span>
+                <span id="stat-str-val" class="spec-value">10</span>
+                <button class="stat-plus-btn" data-stat="strength">+</button>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">AGILITY</span>
+                <span id="stat-agi-val" class="spec-value">10</span>
+                <button class="stat-plus-btn" data-stat="agility">+</button>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">INTELLIGENCE</span>
+                <span id="stat-int-val" class="spec-value">10</span>
+                <button class="stat-plus-btn" data-stat="intelligence">+</button>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label" style="color:#ff9f43;">STAMINA</span>
+                <span id="stat-sta-val" class="spec-value" style="color:#ff9f43;">10</span>
+                <span style="font-size:9px; color:rgba(255,255,255,0.35); margin-left:4px;">(gear)</span>
+              </div>
+            </div>
+            <div class="points-pool">
+              <div class="pool-title">ALLOCATABLE POINTS</div>
+              <div id="stat-points-pool" class="pool-val">0</div>
+            </div>
+          </div>
+
+          <div class="xp-progress-large">
+            <div class="progress-labels">
+              <span>XP BAR</span>
+              <span id="hud-xp-ratio">0 / 100</span>
+            </div>
+            <div class="hud-bar-outer">
+              <div id="hud-xp-bar" class="hud-bar-inner xp-bar-grad" style="width: 0%"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CENTER SECTION: Stable Metrics & Games -->
+      <section class="grid-col center-panel">
+        <div class="glass-card game-module">
+          <div class="card-header"
+            style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+            <h3 id="panel-title-text">PET STABLE STANDINGS</h3>
+            <div class="tabs" style="border:none; padding:0; display:flex; gap:6px; flex-wrap:wrap;">
+              <button class="game-select-btn hud-btn glow-gold" data-game="staking"
+                style="font-size:10px; padding:4px 8px;">🥩 Staking</button>
+              <button class="game-select-btn hud-btn" data-game="gearbag"
+                style="font-size:10px; padding:4px 8px; border-color:#bd00ff; color:#bd00ff;">🎒 Gear Bag</button>
+              <button class="game-select-btn hud-btn glow-green" data-game="memory"
+                style="font-size:10px; padding:4px 8px;">🎮 Memory</button>
+              <button class="game-select-btn hud-btn glow-cyan" data-game="runner"
+                style="font-size:10px; padding:4px 8px;">🎮 Runner</button>
+              <button class="game-select-btn hud-btn glow-pink" data-game="clicker"
+                style="font-size:10px; padding:4px 8px;">🎮 Clicker</button>
+              <button class="game-select-btn hud-btn" data-game="pvp"
+                style="font-size:10px; padding:4px 8px; border-color:#ff3e3e; color:#ff3e3e;">⚔️ PvP Arena</button>
+              <button class="game-select-btn hud-btn" data-game="breeding"
+                style="font-size:10px; padding:4px 8px; border-color:#ffd700; color:#ffd700;">🧬 Breeding</button>
+              <button class="game-select-btn hud-btn" data-game="store"
+                style="font-size:10px; padding:4px 8px; border-color:#00ffcc; color:#00ffcc;">🏪 Cyber Store</button>
+              <button id="btn-back-to-stable" class="hud-btn hidden"
+                style="font-size:10px; padding:4px 8px; border-color:rgba(255,255,255,0.4);">🏠 Stable HUD</button>
+            </div>
+          </div>
+
+          <div class="game-container">
+
+            <!-- STABLE HUD METRICS VIEW (DEFAULT) -->
+            <div id="stable-metrics-view" class="tab-content active"
+              style="padding: 10px; width: 100%; overflow-y: auto; justify-content: flex-start;">
+              <p style="font-size:12px; color:rgba(255,255,255,0.5); margin-bottom:12px;">Overview of all registered
+                companions in your stable.</p>
+
+              <!-- Productive Focus Station Subsection -->
+              <div
+                style="background: rgba(26,26,46,0.55); border: 1px solid rgba(0, 255, 204, 0.2); border-radius: 12px; padding: 12px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; width: 100%; flex-wrap: wrap; gap: 12px; box-shadow: 0 4px 20px rgba(0, 255, 204, 0.05);">
+                <div style="display: flex; align-items: center; gap: 14px;">
+                  <span style="font-size: 26px; filter: drop-shadow(0 0 4px var(--color-cyan));">⏱️</span>
+                  <div>
+                    <div
+                      style="font-size: 9px; font-weight: bold; color: rgba(255,255,255,0.4); letter-spacing: 0.5px; margin-bottom: 2px;">
+                      PRODUCTIVE FOCUS STATION</div>
+                    <div id="focus-timer-text"
+                      style="font-family:'Orbitron',sans-serif; font-size:24px; font-weight:bold; color:var(--color-cyan); text-shadow:0 0 8px var(--color-cyan); line-height: 1;">
+                      25:00</div>
+                    <div id="focus-status-text"
+                      style="font-family:'Share Tech Mono',monospace; color:rgba(255,255,255,0.6); font-size:10px; margin-top: 4px;">
+                      Ready to Focus</div>
+                  </div>
+                </div>
+
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <select id="focus-duration"
+                    style="background:#1a1a2e; color:#fff; border:1px solid rgba(255,255,255,0.15); padding:6px 10px; border-radius:8px; font-family:'Rajdhani',sans-serif; font-size:12px; cursor: pointer; outline: none;">
+                    <option value="1">1 Min (Test)</option>
+                    <option value="15">15 Min</option>
+                    <option value="25" selected>25 Min</option>
+                    <option value="50">50 Min</option>
+                  </select>
+                  <button id="btn-focus-toggle" class="hud-btn glow-cyan"
+                    style="padding:6px 14px; font-size:12px; font-weight: bold; border-radius: 12px;">Start
+                    Focus</button>
+                </div>
+
+                <div style="font-family:'Rajdhani',sans-serif; text-align:right;">
+                  <div style="font-size:10px; color:rgba(255,255,255,0.4); font-weight: 500; letter-spacing: 0.5px;">
+                    EST. REWARD:</div>
+                  <div
+                    style="font-size:16px; font-weight:bold; color:#ffd700; text-shadow: 0 0 5px rgba(255, 215, 0, 0.2);">
+                    <span id="val-reward">500</span> $PETCOIN</div>
+                </div>
+              </div>
+
+              <div id="stable-standings-list"
+                style="display:grid; grid-template-columns: repeat(3, 1fr); gap:16px; justify-items:center; padding: 8px 0; width: 100%;">
+                <!-- Dynamically injected pet details with stats, ranking, and rarity -->
+              </div>
+            </div>
+
+            <!-- MEMORY MATCH GAME -->
+            <div id="game-tab-memory" class="tab-content">
+              <div class="game-intro">
+                <h4>Grid Memory Match</h4>
+                <p>Find matching cards. Complete to earn +20 XP & +10 $PETCOIN.</p>
+                <button id="btn-start-memory" class="hud-btn glow-green">Start Game</button>
+              </div>
+              <div id="memory-grid" class="memory-grid hidden">
+                <!-- Cards injected via JS -->
+              </div>
+              <div id="memory-victory" class="victory-overlay hidden">
+                <h3>VICTORY!</h3>
+                <p>Rewards Gained: <span class="green-text">+20 XP | +10 $PETCOIN</span></p>
+                <button id="btn-reset-memory" class="hud-btn">Play Again</button>
+              </div>
+            </div>
+
+            <!-- NEON RUNNER GAME -->
+            <div id="game-tab-runner" class="tab-content">
+              <div class="game-intro" id="runner-intro">
+                <h4>Neon Obstacle Runner</h4>
+                <p>Press SPACEBAR or click/tap to jump over barriers. Reach 150 points to claim +30 XP & +15 $PETCOIN.
+                </p>
+                <button id="btn-start-runner" class="hud-btn glow-cyan">Boot Runner</button>
+              </div>
+              <div class="runner-canvas-wrap hidden" id="runner-wrap">
+                <div class="runner-score-hud">SCORE: <span id="runner-score">0</span></div>
+                <canvas id="runner-canvas" width="460" height="200"></canvas>
+              </div>
+              <div id="runner-gameover" class="victory-overlay hidden">
+                <h3 id="runner-status-title">GAME OVER</h3>
+                <p id="runner-reward-msg">Score: 0. Reached milestone: No.</p>
+                <button id="btn-reset-runner" class="hud-btn">Restart Game</button>
+              </div>
+            </div>
+
+            <!-- CLICKER GAME -->
+            <div id="game-tab-clicker" class="tab-content">
+              <div class="clicker-wrap">
+                <h4>Interactive Pet Clicker</h4>
+                <p>Rapidly click your pet to feed and pet it! Each click adds energy and happiness points.</p>
+                <div class="clicker-target-circle" id="clicker-zone">
+                  <span id="clicker-effect-text" class="clicker-pop-text">+1 XP</span>
+                  <div class="clicker-neon-core">🍖</div>
+                </div>
+                <div class="clicker-stats">
+                  <span>CLICKS: <span id="clicker-count">0</span></span>
+                </div>
+              </div>
+            </div>
+
+            <!-- STAKING & VALIDATOR EXPEDITIONS -->
+            <div id="game-tab-staking" class="tab-content" style="padding: 12px; font-family:'Rajdhani',sans-serif;">
+              <div
+                style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:8px;">
+                <h4 style="margin:0; font-size:16px; color:#ffd700;">⚔️ Exploration Raids &amp; Expeditions</h4>
+                <div style="font-size:12px; color:rgba(255,255,255,0.7);">
+                  Staked Slots: <strong id="staking-slots-info" style="color:#00E5FF;">0/1</strong>
+                </div>
+              </div>
+              <p style="font-size:11px; color:rgba(255,255,255,0.5); margin:0 0 10px 0;">Send inactive pets on raids to
+                earn
+                <strong style="color:#ffd700;">$PETCOIN</strong>, consumables, and
+                <strong style="color:#bd00ff;">Gear items</strong>.
+                🗡️ Weapons &amp; 💾 AI Chips drop from <strong>4h &amp; 8h</strong> raids only.
+                8h raids need <strong>Lv30+</strong>. <span style="color:#ff9f43;">AGI</span> shortens raid time.
+              </p>
+
+              <div id="staking-pets-list"
+                style="display:flex; flex-direction:column; gap:10px; max-height:240px; overflow-y:auto; padding-right:4px;">
+                <!-- Dynamically populated stabled pets list with staking forms and active timer displays -->
+              </div>
+            </div>
+
+            <!-- GEAR BAG -->
+            <div id="game-tab-gearbag" class="tab-content" style="padding:12px; font-family:'Rajdhani',sans-serif;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <h4 style="margin:0; font-size:16px; color:#bd00ff;">🎒 Gear Bag</h4>
+                <span style="font-size:11px; color:rgba(255,255,255,0.5);">Click gear to equip to active pet</span>
+              </div>
+              <div id="gear-bag-list"
+                style="display:grid; grid-template-columns:1fr 1fr; gap:8px; max-height:300px; overflow-y:auto; padding-right:4px;">
+                <div
+                  style="grid-column:span 2; text-align:center; color:rgba(255,255,255,0.3); font-size:12px; padding:20px;"
+                  id="gear-bag-empty">No gear found yet. Go on a raid! ⚔️</div>
+              </div>
+            </div>
+
+            <!-- PVP ARENA -->
+            <div id="game-tab-pvp" class="tab-content"
+              style="padding:12px; font-family:'Rajdhani',sans-serif; min-height: 280px; position: relative;">
+              <!-- Matchmaking/Lobby View -->
+              <div id="pvp-lobby-view" style="display: flex; flex-direction: column; gap: 8px;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                  <h4 style="margin:0; font-size:16px; color:#ff3e3e;">⚔️ Multiplayer PvP Lobby</h4>
+                  <div style="display:flex; align-items:center; gap:6px;">
+                    <span id="pvp-server-indicator" class="dot-red"
+                      style="width:8px; height:8px; background:#ff3e3e; border-radius:50%; display:inline-block;"></span>
+                    <span id="pvp-server-text" style="font-size:12px; color:rgba(255,255,255,0.5);">Connecting...</span>
+                  </div>
+                </div>
+
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; height: 160px;">
+                  <!-- Players List -->
+                  <div
+                    style="background:rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:8px; display:flex; flex-direction:column;">
+                    <div
+                      style="font-size:11px; font-weight:bold; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:4px; color:#00c0ff; margin-bottom:4px; letter-spacing:0.5px;">
+                      ONLINE CHALLENGERS</div>
+                    <div id="pvp-players-list"
+                      style="overflow-y:auto; flex-grow:1; display:flex; flex-direction:column; gap:4px; font-size:11px;">
+                      <div style="color:rgba(255,255,255,0.3); text-align:center; margin-top:20px;">No other players
+                        online</div>
+                    </div>
+                  </div>
+
+                  <!-- Lobby Chat -->
+                  <div
+                    style="background:rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:8px; display:flex; flex-direction:column; justify-content:space-between;">
+                    <div
+                      style="font-size:11px; font-weight:bold; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:4px; color:#bd00ff; margin-bottom:4px; letter-spacing:0.5px;">
+                      LOBBY RADIO FEED</div>
+                    <div id="pvp-chat-log"
+                      style="overflow-y:auto; flex-grow:1; display:flex; flex-direction:column; gap:2px; font-family:'Share Tech Mono',monospace; font-size:10px; margin-bottom:4px; max-height:100px; color:#39ff14;">
+                      <div>[System] Broadcast online. Send waves to others.</div>
+                    </div>
+                    <div style="display:flex; gap:4px;">
+                      <input type="text" id="pvp-chat-input" placeholder="Lobby chat..."
+                        style="flex-grow:1; background:#111; border:1px solid rgba(255,255,255,0.15); color:#fff; font-size:10px; padding:3px 6px; border-radius:3px; outline:none;" />
+                      <button id="pvp-btn-chat-send" class="hud-btn glow-pink"
+                        style="padding:2px 8px; font-size:9px;">Send</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div style="display:flex; justify-content:center; align-items:center; margin-top:4px; gap:8px;">
+                  <button id="pvp-btn-queue" class="hud-btn glow-cyan"
+                    style="width:100%; padding:8px; font-size:13px; font-weight:bold;">⚔️ QUEUE FOR QUICK MATCH</button>
+                </div>
+              </div>
+
+              <!-- Challenge Prompt View -->
+              <div id="pvp-challenge-prompt" class="hidden"
+                style="background:rgba(26,26,46,0.95); border:2px solid #ffb700; border-radius:8px; padding:12px; text-align:center; position:absolute; top:10px; left:10px; right:10px; z-index:100; box-shadow: 0 0 15px rgba(255,183,0,0.3);">
+                <h4 style="color:#ffb700; margin:0 0 6px 0; font-size:16px;">⚔️ CHALLENGE RECEIVED!</h4>
+                <p style="margin:0 0 10px 0; font-size:12px;"><strong id="pvp-challenger-name"
+                    style="color:#00c0ff;">Player</strong> challenges you! Opponent pet: <strong id="pvp-challenger-pet"
+                    style="color:#ff3e3e;">Pet</strong></p>
+                <div style="display:flex; gap:8px; justify-content:center;">
+                  <button id="pvp-btn-accept" class="hud-btn glow-green"
+                    style="padding:4px 16px; font-size:11px; font-weight:bold;">ACCEPT</button>
+                  <button id="pvp-btn-decline" class="hud-btn glow-pink"
+                    style="padding:4px 16px; font-size:11px;">DECLINE</button>
+                </div>
+              </div>
+
+              <!-- Active Battle View -->
+              <div id="pvp-battle-view" class="hidden" style="display: flex; flex-direction: column; gap: 8px;">
+                <div
+                  style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; text-align:center; align-items:center; background:rgba(0,0,0,0.5); padding:8px; border-radius:6px; border:1px solid rgba(255,255,255,0.05);">
+                  <!-- Pet A -->
+                  <div>
+                    <h5 id="battle-pet-name-a"
+                      style="margin:0; font-size:12px; color:#00c0ff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                      Your Pet</h5>
+                    <div style="font-size:9px; color:rgba(255,255,255,0.4);" id="battle-pet-owner-a">You</div>
+                    <div class="hud-bar-outer" style="height:6px; margin-top:4px;">
+                      <div id="battle-pet-hp-bar-a" class="hud-bar-inner" style="width: 100%; background: #39ff14;">
+                      </div>
+                    </div>
+                    <div style="font-size:9px; text-align:right;" id="battle-pet-hp-val-a">100 / 100 HP</div>
+                  </div>
+                  <!-- Pet B -->
+                  <div>
+                    <h5 id="battle-pet-name-b"
+                      style="margin:0; font-size:12px; color:#ff3e3e; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                      Opponent Pet</h5>
+                    <div style="font-size:9px; color:rgba(255,255,255,0.4);" id="battle-pet-owner-b">Opponent</div>
+                    <div class="hud-bar-outer" style="height:6px; margin-top:4px;">
+                      <div id="battle-pet-hp-bar-b" class="hud-bar-inner" style="width: 100%; background: #39ff14;">
+                      </div>
+                    </div>
+                    <div style="font-size:9px; text-align:right;" id="battle-pet-hp-val-b">100 / 100 HP</div>
+                  </div>
+                </div>
+
+                <div
+                  style="background:rgba(0,0,0,0.7); border:1px solid rgba(255,255,255,0.1); border-radius:6px; padding:6px; height:120px; overflow-y:auto; font-family:'Share Tech Mono',monospace; font-size:10px; line-height:1.4; color:#39ff14; display:flex; flex-direction:column; gap:2px;"
+                  id="battle-combat-feed">
+                  <!-- Log feed -->
+                </div>
+              </div>
+
+              <!-- Battle Outcome overlay -->
+              <div id="pvp-battle-outcome" class="victory-overlay hidden"
+                style="position: absolute; top:0; left:0; width:100%; height:100%; display:flex; flex-direction:column; justify-content:center; align-items:center; background:rgba(0,0,0,0.92); z-index:110;">
+                <h2 id="battle-outcome-title"
+                  style="font-family:'Orbitron',sans-serif; font-size:22px; margin:0 0 6px 0; text-shadow:0 0 10px #ffd700;">
+                  VICTORY</h2>
+                <p id="battle-outcome-desc" style="font-size:12px; color:rgba(255,255,255,0.7); margin-bottom:16px;">
+                  Winner is PetName!</p>
+                <button id="pvp-btn-outcome-ok" class="hud-btn glow-cyan"
+                  style="padding:4px 16px; font-size:11px;">Return to Lobby</button>
+              </div>
+            </div>
+
+            <!-- BREEDING TAB -->
+            <div id="game-tab-breeding" class="tab-content"
+              style="padding:12px; font-family:'Rajdhani',sans-serif; min-height: 280px; position: relative;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                <h4 style="margin:0; font-size:15px; color:#ffd700;">🧬 Genetic Breeding Lab</h4>
+                <div
+                  style="font-size:9px; background:rgba(255,183,0,0.15); border:1px solid #ffb700; color:#ffb700; padding:2px 6px; border-radius:4px; font-weight:bold; letter-spacing:0.5px;">
+                  REQUIRES LEVEL 60 PARENTS</div>
+              </div>
+              <p style="font-size:11px; color:rgba(255,255,255,0.5); margin:0 0 8px 0;">Combine DNA of two Level 60
+                companions.
+                Cost: <strong style="color:var(--color-cyan);">100,000 $PETCOIN</strong> &amp; <strong
+                  style="color:var(--color-pink);">5,000 $DESK</strong>.
+              </p>
+
+              <div
+                style="display:grid; grid-template-columns: 1fr 100px 1fr; gap:16px; align-items:stretch; margin-bottom:12px;">
+                <!-- Parent A Capsule Chamber -->
+                <div style="display:flex; flex-direction:column; gap:8px;">
+                  <div class="breed-capsule" id="breed-capsule-a">
+                    <div class="breed-capsule-laser"></div>
+                    <div id="breed-avatar-a" class="breed-capsule-render">
+                      <div class="breed-capsule-empty">
+                        <span>🧪 CHAMBER A</span>
+                        <span style="font-size:9px; opacity:0.6;">OFFLINE</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:12px; padding:10px; text-align:center; box-shadow:0 4px 10px rgba(0,0,0,0.15);">
+                    <div
+                      style="font-size:9px; color:rgba(255,255,255,0.4); margin-bottom:6px; font-weight:bold; letter-spacing:0.5px;">
+                      GENETIC SOURCE A</div>
+                    <select id="breed-select-parent-a"
+                      style="background:#1a1a2e; color:#fff; border:1px solid rgba(255,255,255,0.15); width:100%; font-size:11px; padding:6px; border-radius:8px; outline:none; margin-bottom:6px; font-family:'Rajdhani',sans-serif; cursor:pointer;"></select>
+                    <div id="breed-preview-a" style="font-size:10px; color:#ffd700; font-family:'Share Tech Mono',monospace; min-height:28px; display:flex; align-items:center; justify-content:center; line-height:1.3;">- Empty -</div>
+                  </div>
+                </div>
+
+                <!-- DNA Blend Helix Core -->
+                <div class="dna-fusion-core" style="align-self:center;">
+                  <div class="dna-spin-helix">🧬</div>
+                  <div style="font-size:9px; font-weight:bold; color:rgba(255,255,255,0.4); text-transform:uppercase; text-align:center; letter-spacing:0.5px;">BLENDING</div>
+                </div>
+
+                <!-- Parent B Capsule Chamber -->
+                <div style="display:flex; flex-direction:column; gap:8px;">
+                  <div class="breed-capsule" id="breed-capsule-b">
+                    <div class="breed-capsule-laser"></div>
+                    <div id="breed-avatar-b" class="breed-capsule-render">
+                      <div class="breed-capsule-empty">
+                        <span>🧪 CHAMBER B</span>
+                        <span style="font-size:9px; opacity:0.6;">OFFLINE</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:12px; padding:10px; text-align:center; box-shadow:0 4px 10px rgba(0,0,0,0.15);">
+                    <div
+                      style="font-size:9px; color:rgba(255,255,255,0.4); margin-bottom:6px; font-weight:bold; letter-spacing:0.5px;">
+                      GENETIC SOURCE B</div>
+                    <select id="breed-select-parent-b"
+                      style="background:#1a1a2e; color:#fff; border:1px solid rgba(255,255,255,0.15); width:100%; font-size:11px; padding:6px; border-radius:8px; outline:none; margin-bottom:6px; font-family:'Rajdhani',sans-serif; cursor:pointer;"></select>
+                    <div id="breed-preview-b" style="font-size:10px; color:#ffd700; font-family:'Share Tech Mono',monospace; min-height:28px; display:flex; align-items:center; justify-content:center; line-height:1.3;">- Empty -</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- DNA Fusion Matrix Preview -->
+              <div id="breed-matrix-preview"
+                style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:10px 14px; display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; box-shadow:0 2px 8px rgba(0,0,0,0.15);">
+                <div style="font-size:11px; color:rgba(255,255,255,0.5); font-weight:bold; letter-spacing:0.5px;">CHROMOSOME SYNTHESIS:</div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <div id="breed-preview-color-a"
+                    style="width:14px; height:14px; border-radius:50%; border:1px solid rgba(255,255,255,0.3); background:transparent; box-shadow: 0 0 5px rgba(255,255,255,0.1); transition: all 0.25s ease;">
+                  </div>
+                  <span style="font-size:11px; color:rgba(255,255,255,0.3); font-family:monospace;">+</span>
+                  <div id="breed-preview-color-b"
+                    style="width:14px; height:14px; border-radius:50%; border:1px solid rgba(255,255,255,0.3); background:transparent; box-shadow: 0 0 5px rgba(255,255,255,0.1); transition: all 0.25s ease;">
+                  </div>
+                  <span style="font-size:11px; color:rgba(255,255,255,0.3); font-family:monospace;">=</span>
+                  <div id="breed-preview-color-baby"
+                    style="width:18px; height:18px; border-radius:50%; border:2px solid #ffb700; background:transparent; box-shadow:0 0 10px rgba(255,183,0,0.5); transition: all 0.25s ease;">
+                  </div>
+                </div>
+              </div>
+
+              <button id="breed-btn-submit" class="hud-btn glow-gold"
+                style="width:100%; padding:8px; font-size:13px; font-weight:bold; border-color:#ffb700; color:#ffb700;">🧬
+                INITIATE GENE FUSION (100k💰 | 5k💖)</button>
+
+              <!-- New Born Display Panel -->
+              <div id="breed-newborn-card" class="victory-overlay hidden"
+                style="position: absolute; top:0; left:0; width:100%; height:100%; display:flex; flex-direction:column; justify-content:center; align-items:center; background:rgba(0,0,0,0.96); z-index:120; padding:12px; text-align:center;">
+                <h3
+                  style="font-family:'Orbitron',sans-serif; color:#ffd700; font-size:18px; margin:0 0 6px 0; text-shadow:0 0 10px #ffd700;">
+                  🧬 NEW LIFE CREATED!</h3>
+                <div
+                  style="width:50px; height:50px; border-radius:50%; border:2px solid #00c0ff; display:flex; align-items:center; justify-content:center; font-size:24px; background:rgba(0,192,255,0.1); margin-bottom:8px; box-shadow:0 0 10px #00c0ff;"
+                  id="breed-baby-avatar-circle">🥚</div>
+                <h4 id="breed-baby-name" style="margin:0; font-size:15px; color:#fff;">Baby Pet</h4>
+                <div style="font-size:11px; color:#ffb700; margin-bottom:6px;" id="breed-baby-rarity">Common</div>
+                <div id="breed-burn-notification" style="font-size:10px; color:#ff3b30; margin-bottom:6px; font-weight:bold; max-width:180px;" class="hidden"></div>
+                <div
+                  style="font-size:10px; color:rgba(255,255,255,0.6); display:grid; grid-template-columns:1fr 1fr; gap:4px; width:150px; margin-bottom:12px; text-align:left; background:rgba(255,255,255,0.05); padding:6px; border-radius:4px;"
+                  id="breed-baby-stats">
+                  <div>STR: 10</div>
+                  <div>AGI: 10</div>
+                  <div>INT: 10</div>
+                  <div>STA: 10</div>
+                </div>
+                <button id="breed-btn-newborn-ok" class="hud-btn glow-green"
+                  style="padding:4px 16px; font-size:11px;">Welcome to the Stable!</button>
+              </div>
+            </div>
+
+            <!-- CYBER STORE TAB -->
+            <div id="game-tab-store" class="tab-content"
+              style="padding:12px; font-family:'Rajdhani',sans-serif; min-height: 280px; position: relative; width: 100%;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; width: 100%;">
+                <h4 style="margin:0; font-size:16px; color:#00ffcc;">🏪 Official Cyber Store</h4>
+                <div
+                  style="font-size:10px; background:rgba(0,255,204,0.15); border:1px solid #00ffcc; color:#00ffcc; padding:2px 6px; border-radius:4px; font-weight:bold; letter-spacing:0.5px;">
+                  ON-CHAIN DEVNET PURCHASES</div>
+              </div>
+              <p style="font-size:11px; color:rgba(255,255,255,0.5); margin:0 0 12px 0; width: 100%;">Purchase starting pet eggs or
+                premium leveled companions. Mints instantly as a real SPL NFT to your Privy Solana wallet.</p>
+
+              <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px; min-height: 200px; align-items: stretch; width: 100%;">
+                <!-- Mystery Egg Card -->
+                <div class="store-card egg-card">
+                  <div>
+                    <div class="store-art-box">🥚</div>
+                    <div style="font-size:15px; font-weight:bold; color:#fff; letter-spacing:-0.2px;">Mystery Pet Egg</div>
+                    <div style="font-size:11px; color:rgba(255,255,255,0.5); margin-top:4px;">Common species, Level 1 companion</div>
+                  </div>
+                  <div style="margin-top:14px;">
+                    <div style="font-size:16px; font-weight:bold; color:var(--color-cyan); margin-bottom:10px; font-family:'Share Tech Mono',monospace;">500 $DESK</div>
+                    <button id="store-btn-buy-egg" class="hud-btn glow-cyan"
+                      style="width:100%; padding:8px 0; font-size:12px; font-weight:bold; border-radius:12px;">BUY &amp; MINT</button>
+                  </div>
+                </div>
+
+                <!-- Limited Level 60 Treasury Pet Card -->
+                <div class="store-card treasury-card">
+                  <div>
+                    <div class="store-art-box">👑</div>
+                    <div style="font-size:15px; font-weight:bold; color:#fff; letter-spacing:-0.2px;">Treasury Lv. 60 Pet</div>
+                    <div style="font-size:11px; color:rgba(255,255,255,0.5); margin-top:4px;">Fully leveled, randomized stats</div>
+                    <div style="font-size:10px; color:#ffb700; margin-top:6px; font-weight:bold; background:rgba(255,149,0,0.1); display:inline-block; padding:2px 8px; border-radius:8px; border:1px solid rgba(255,149,0,0.2);"
+                      id="store-treasury-supply">Supply: 0 / 3333</div>
+                  </div>
+                  <div style="margin-top:14px;">
+                    <div style="font-size:16px; font-weight:bold; color:var(--color-pink); margin-bottom:10px; font-family:'Share Tech Mono',monospace;">5,000 $DESK</div>
+                    <button id="store-btn-buy-treasury" class="hud-btn glow-gold"
+                      style="width:100%; padding:8px 0; font-size:12px; font-weight:bold; border-radius:12px;">BUY &amp; MINT</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- PACK & CYBER STORE -->
+        <div class="glass-card shop-panel" style="margin-top: 16px;">
+          <h3>PACK & CYBER STORE</h3>
+          <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(115px, 1fr)); gap:12px;">
+            <!-- Treat -->
+            <div class="consumable-card"
+              style="padding:12px; text-align:center; display:flex; flex-direction:column; justify-content:space-between;">
+              <div>
+                <div style="font-size:12px; font-weight:bold; white-space:nowrap;">Treat 🍗</div>
+                <div style="font-size:9px; color:rgba(255,255,255,0.5); margin:2px 0;">+25 Hunger</div>
+                <div style="font-size:10px; margin-bottom:4px;">Pack: <strong id="inv-treat">0</strong></div>
+              </div>
+              <div style="display:flex; gap:4px;">
+                <button class="use-btn hud-btn" data-item="treat"
+                  style="flex:1; padding:4px 0; font-size:10px; border-radius:8px;">Use</button>
+                <button class="buy-btn hud-btn glow-pink" data-item="treat" data-cost="20"
+                  style="flex:1.5; padding:4px 0; font-size:10px; border-radius:8px;">Buy (20💰)</button>
+              </div>
+            </div>
+            <!-- Toy -->
+            <div class="consumable-card"
+              style="padding:12px; text-align:center; display:flex; flex-direction:column; justify-content:space-between;">
+              <div>
+                <div style="font-size:12px; font-weight:bold; white-space:nowrap;">Toy 🧶</div>
+                <div style="font-size:9px; color:rgba(255,255,255,0.5); margin:2px 0;">+30 Happy</div>
+                <div style="font-size:10px; margin-bottom:4px;">Pack: <strong id="inv-toy">0</strong></div>
+              </div>
+              <div style="display:flex; gap:4px;">
+                <button class="use-btn hud-btn" data-item="toy"
+                  style="flex:1; padding:4px 0; font-size:10px; border-radius:8px;">Use</button>
+                <button class="buy-btn hud-btn glow-pink" data-item="toy" data-cost="30"
+                  style="flex:1.5; padding:4px 0; font-size:10px; border-radius:8px;">Buy (30💰)</button>
+              </div>
+            </div>
+            <!-- Battery -->
+            <div class="consumable-card"
+              style="padding:12px; text-align:center; display:flex; flex-direction:column; justify-content:space-between;">
+              <div>
+                <div style="font-size:12px; font-weight:bold; white-space:nowrap;">Battery ⚡</div>
+                <div style="font-size:9px; color:rgba(255,255,255,0.5); margin:2px 0;">+40 Energy</div>
+                <div style="font-size:10px; margin-bottom:4px;">Pack: <strong id="inv-battery">0</strong></div>
+              </div>
+              <div style="display:flex; gap:4px;">
+                <button class="use-btn hud-btn" data-item="battery"
+                  style="flex:1; padding:4px 0; font-size:10px; border-radius:8px;">Use</button>
+                <button class="buy-btn hud-btn glow-pink" data-item="battery" data-cost="50"
+                  style="flex:1.5; padding:4px 0; font-size:10px; border-radius:8px;">Buy (50💰)</button>
+              </div>
+            </div>
+            <!-- Mutagen -->
+            <div class="consumable-card"
+              style="padding:12px; text-align:center; display:flex; flex-direction:column; justify-content:space-between;">
+              <div>
+                <div style="font-size:12px; font-weight:bold; white-space:nowrap;">Mutagen 🧪</div>
+                <div style="font-size:9px; color:rgba(255,255,255,0.5); margin:2px 0;">+1-3 Stat</div>
+                <div style="font-size:10px; margin-bottom:4px;">Pack: <strong id="inv-mutagen">0</strong></div>
+              </div>
+              <div style="display:flex; gap:4px;">
+                <button class="use-btn hud-btn" data-item="mutagen"
+                  style="flex:1; padding:4px 0; font-size:10px; border-radius:8px;">Use</button>
+                <button class="buy-btn hud-btn glow-pink" data-item="mutagen" data-cost="200"
+                  style="flex:1.5; padding:4px 0; font-size:10px; border-radius:8px;">Buy (200💰)</button>
+              </div>
+            </div>
+            <!-- Stats Reset Injector -->
+            <div class="consumable-card"
+              style="padding:12px; text-align:center; display:flex; flex-direction:column; justify-content:space-between;">
+              <div>
+                <div style="font-size:12px; font-weight:bold; white-space:nowrap;">Reset Stats 🌀</div>
+                <div style="font-size:9px; color:rgba(255,255,255,0.5); margin:2px 0;">Reset Attributes</div>
+                <div style="font-size:10px; margin-bottom:4px;">Unlocked</div>
+              </div>
+              <button id="btn-shop-reset-stats" class="hud-btn glow-pink"
+                style="padding:6px 0; font-size:10px; width:100%; border-radius:8px;">Buy (10k💰)</button>
+            </div>
+            <!-- Custom Skins Pack -->
+            <div class="consumable-card"
+              style="padding:12px; text-align:center; display:flex; flex-direction:column; justify-content:space-between;">
+              <div>
+                <div style="font-size:12px; font-weight:bold; white-space:nowrap;">Neon Skins 🎨</div>
+                <div style="font-size:9px; color:rgba(255,255,255,0.5); margin:2px 0 4px 0;">Buy Custom Skin</div>
+                <select id="shop-skin-select"
+                  style="background:#1a1a2e; color:#fff; border:1px solid rgba(255,255,255,0.2); width:100%; font-size:10px; padding:3px; border-radius:6px; outline:none; font-family:'Rajdhani',sans-serif;">
+                  <option value="neon-purple">Neon Purple</option>
+                  <option value="neon-matrix">Neon Matrix</option>
+                  <option value="neon-rainbow">Neon Rainbow</option>
+                </select>
+              </div>
+              <button id="btn-shop-buy-skin" class="hud-btn glow-pink"
+                style="padding:6px 0; font-size:10px; width:100%; border-radius:8px; margin-top:4px;">Buy (5k💰)</button>
+            </div>
+            <!-- Staking Slot Upgrade -->
+            <div class="consumable-card"
+              style="padding:12px; text-align:center; display:flex; flex-direction:column; justify-content:space-between;">
+              <div>
+                <div style="font-size:12px; font-weight:bold; white-space:nowrap;">Staking Slot 🥩</div>
+                <div style="font-size:9px; color:rgba(255,255,255,0.5); margin:2px 0;">Max 5 slots</div>
+                <div style="font-size:8px; margin-bottom:4px; color:#ff9f43; white-space:nowrap;">⚠️ Requires Lv60 Pet</div>
+                <div id="shop-slot-cost-display" style="font-size:10px; margin-bottom:4px; font-family:'Share Tech Mono',monospace;">Slot 2: 10k💰</div>
+              </div>
+              <button id="btn-shop-buy-slot" class="hud-btn glow-pink"
+                style="padding:6px 0; font-size:10px; width:100%; border-radius:8px;">Unlock Slot</button>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- RIGHT SECTION: Solana Web3 Sandbox -->
+      <section class="grid-col right-panel">
+        <!-- DATABASE SYNC & AUTH CARD -->
+        <div class="glass-card auth-card">
+          <div class="card-header">
+            <h3>DATABASE SYNC & AUTH</h3>
+            <span id="val-server-status" class="online"
+              style="border:1px solid var(--color-cyan); padding:2px 6px; border-radius:4px; font-size:10px; color:var(--color-cyan);">OFFLINE</span>
+          </div>
+          <div class="web3-body" style="padding-top: 10px;">
+            <!-- User Status & Logout -->
+            <div id="user-profile-badge" class="wallet-status-box hidden" style="margin-bottom:12px;">
+              <div class="status-indicator">
+                <span class="dot-green"
+                  style="display:inline-block; width:8px; height:8px; background:#39ff14; border-radius:50%; margin-right:6px;"></span>
+                <span id="user-email">dev@gmail.com</span>
+              </div>
+              <button id="btn-logout" class="web3-action-btn glow-pink" style="margin-top:8px;">LOG OUT</button>
+            </div>
+
+            <!-- Privy Login Button -->
+            <div id="auth-gateway" class="web3-section">
+              <button id="btn-privy-login" class="web3-action-btn glow-cyan" style="width:100%; padding:10px;">🔐 SIGN
+                IN WITH PRIVY</button>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- Sync Logs -->
+            <div class="web3-section">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h4>SYNC CONSOLE</h4>
+                <small style="color:rgba(255,255,255,0.5);">Last Sync: <span id="val-last-sync">Never</span></small>
+              </div>
+              <div id="sync-console-logs"
+                style="height:100px; overflow-y:auto; background:rgba(0,0,0,0.6); padding:8px; border-radius:4px; font-family:'Share Tech Mono',monospace; font-size:10px; line-height:1.4; border:1px solid rgba(255,255,255,0.1); margin-top:8px; color:#39ff14;">
+                <div class="log-line info">[System] Ready. Log in to sync.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Solana NFT Hub -->
+        <div class="glass-card web3-card" style="margin-top:16px;">
+          <div class="card-header">
+            <h3>SOLANA CORE NFT HUB</h3>
+            <span class="token-ticker">SPL-2022</span>
+          </div>
+
+          <div class="web3-body">
+            <!-- Connection State -->
+            <div class="wallet-status-box">
+              <div class="status-indicator">
+                <span id="hud-wallet-dot" class="dot-red"></span>
+                <span id="hud-wallet-text">Wallet Disconnected</span>
+              </div>
+              <div id="wallet-pubkey" class="pubkey-text">Connect to load Solana wallet...</div>
+
+              <!-- Web3 Wallet Balances & Manual Airdrop Controls -->
+              <div id="wallet-balances-box" class="hidden"
+                style="margin-top: 12px; font-size: 12px; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 12px;">
+                <div style="margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+                  <span><strong>User SOL Balance:</strong> <button id="btn-refresh-balances" class="hud-btn"
+                      style="padding: 2px 6px; font-size: 10px; margin-left: 5px;"
+                      title="Refresh Balances">🔄</button></span>
+                  <span id="user-sol-balance" style="color: var(--color-cyan);">Loading...</span>
+                </div>
+                <div style="margin-bottom: 12px; display: flex; gap: 8px;">
+                  <button id="btn-airdrop-user" class="hud-btn" style="font-size: 11px; padding: 4px 8px; flex: 1;">🪂
+                    Airdrop User SOL</button>
+                  <button id="btn-faucet-desk" class="hud-btn glow-pink"
+                    style="font-size: 11px; padding: 4px 8px; flex: 1;">🪂 Airdrop User $DESK</button>
+                  <a href="https://faucet.solana.com" target="_blank" class="hud-btn"
+                    style="font-size: 11px; padding: 4px 8px; text-decoration: none; text-align: center; flex: 1; border-color: rgba(255,255,255,0.2);">🌐
+                    Solana Faucet</a>
+                </div>
+
+                <div style="margin-bottom: 4px; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 8px;">
+                  <strong>Distributor Wallet:</strong>
+                </div>
+                <div id="distributor-pubkey" class="pubkey-text"
+                  style="font-size: 10px; margin-bottom: 8px; opacity: 0.7;">Loading...</div>
+                <div style="margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+                  <span><strong>Distributor Balance:</strong></span>
+                  <span id="distributor-sol-balance" style="color: var(--color-cyan);">Loading...</span>
+                </div>
+                <div style="margin-bottom: 12px; display: flex; gap: 8px;">
+                  <button id="btn-airdrop-distributor" class="hud-btn"
+                    style="font-size: 11px; padding: 4px 8px; flex: 1;">🪂 Fund Distributor</button>
+                  <a href="https://faucet.quicknode.com/solana/devnet" target="_blank" class="hud-btn"
+                    style="font-size: 11px; padding: 4px 8px; text-decoration: none; text-align: center; flex: 1; border-color: rgba(255,255,255,0.2);">🌐
+                    QuickNode Faucet</a>
+                </div>
+
+                <div id="faucet-status-message" class="glow-text"
+                  style="font-size: 11px; margin-top: 8px; text-align: center; color: var(--color-pink);"></div>
+              </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- Mint Section -->
+            <div class="web3-section">
+              <h4>DYNAMIC NFT MINT</h4>
+              <p class="description">Mint your level 60 pet into a Metaplex Core NFT.
+              </p>
+
+              <div class="mint-requirements">
+                <div class="req-item">
+                  <span>Min Level: 60</span>
+                  <span id="req-level-check" class="req-check invalid">❌</span>
+                </div>
+                <div class="req-item">
+                  <span>NFT Status:</span>
+                  <span id="req-mint-check" class="req-check">Not Minted</span>
+                </div>
+              </div>
+
+              <button id="btn-mint-nft" class="web3-action-btn" disabled>MINT METAPLEX NFT</button>
+              <div id="mint-tx-display" class="tx-display hidden">
+                <div class="tx-label">MINT HASH (SOLANA DEVNET):</div>
+                <div id="tx-hash-link" class="tx-link">None</div>
+              </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- $PETCOIN Yield Section -->
+            <div class="web3-section">
+              <h4>$PETCOIN PASSIVE YIELD</h4>
+              <p class="description">Pets earn SPL token yield over time.
+              </p>
+              <div class="yield-hud">
+                <div class="yield-rate">
+                  <span class="label">Daily Rate</span>
+                  <span id="yield-rate-val" class="val">1.20 $DESK/hr</span>
+                </div>
+                <div class="yield-accumulated">
+                  <span class="label">Claimable</span>
+                  <span id="yield-claimable-val" class="val glow-text">0.0000 $DESK</span>
+                </div>
+              </div>
+              <button id="btn-claim-yield" class="web3-action-btn glow-pink" disabled>CLAIM $PETCOIN YIELD</button>
+              <div id="claim-tx-display" class="tx-display hidden" style="margin-top: 10px;">
+                <div class="tx-label">CLAIM TX (SOLANA DEVNET):</div>
+                <div id="claim-tx-hash-link" class="tx-link">None</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="supabase.js"></script>
+  <script src="solana-web3.min.js"></script>
+  <script src="privy-sdk.min.js"></script>
+  <script src="pet_assets.js"></script>
+  <script src="dashboard.js"></script>
+</body>
+
+</html>

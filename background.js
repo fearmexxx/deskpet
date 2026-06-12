@@ -332,12 +332,94 @@ initBgSupabase();
 
 // Alarm for periodic stat decay and growth
 chrome.alarms.create("petGameLoop", { periodInMinutes: 1 }); // runs every 1 minute
+chrome.alarms.create("focusHeartbeat", { periodInMinutes: 2 }); // heartbeat for anti-cheat
+chrome.alarms.create("petNotifications", { periodInMinutes: 5 }); // check notification triggers
 
 chrome.alarms.onAlarm.addListener((alarm) => {
   if (alarm.name === "petGameLoop") {
     updatePetStats();
+  } else if (alarm.name === "focusHeartbeat") {
+    sendFocusHeartbeat();
+  } else if (alarm.name === "petNotifications") {
+    checkNotificationTriggers();
   }
 });
+
+// ==========================================
+// 📡 FOCUS HEARTBEAT (Anti-Cheat)
+// ==========================================
+function sendFocusHeartbeat() {
+  chrome.storage.local.get(["petState"], (result) => {
+    if (!result.petState) return;
+    const state = result.petState;
+    if (state.focusSession && state.focusSession.active && !state.focusSession.isPaused) {
+      if (bgSupabase && state.userAccount && state.userAccount.loggedIn) {
+        callBackend("/api/state/sync-action", "POST", {
+          action: "focusHeartbeat",
+          payload: {}
+        }).catch(err => console.log("[Heartbeat] Failed:", err.message));
+      }
+    }
+  });
+}
+
+// ==========================================
+// 🔔 CHROME NOTIFICATIONS (Stream E)
+// ==========================================
+function sendNotification(id, title, message) {
+  chrome.notifications.create(id, {
+    type: "basic",
+    iconUrl: "assets/icon.png",
+    title: title,
+    message: message,
+    priority: 1
+  }, () => { void chrome.runtime.lastError; });
+}
+
+function checkNotificationTriggers() {
+  chrome.storage.local.get(["petState", "notifState"], (result) => {
+    if (!result.petState) return;
+    const state = result.petState;
+    const notifState = result.notifState || {};
+    const now = Date.now();
+    const activeId = state.activePetId;
+    const pet = activeId ? state.pets[activeId] : null;
+
+    // 1. Pet hunger critical (<20)
+    if (pet && pet.hunger < 20 && (!notifState.lastHungerAlert || now - notifState.lastHungerAlert > 30 * 60 * 1000)) {
+      sendNotification("hunger-alert", `🍖 ${pet.name} is Starving!`, `${pet.name}'s hunger is at ${Math.round(pet.hunger)}%. Feed them before they faint!`);
+      notifState.lastHungerAlert = now;
+    }
+
+    // 2. Staking expedition completed
+    if (state.pets) {
+      for (const petId in state.pets) {
+        const p = state.pets[petId];
+        if (p.staked && p.stakingSession && p.stakingSession.completed) {
+          const alertKey = `stakeComplete_${petId}`;
+          if (!notifState[alertKey]) {
+            sendNotification(`staking-${petId}`, `⚔️ Expedition Complete!`, `${p.name} has returned from their ${p.stakingSession.type.toUpperCase()} raid! Claim your rewards.`);
+            notifState[alertKey] = true;
+          }
+        } else if (!p.staked) {
+          // Reset the alert when unstaked
+          delete notifState[`stakeComplete_${petId}`];
+        }
+      }
+    }
+
+    // 3. Focus session completed
+    if (state.focusSession && !state.focusSession.active && notifState.focusWasActive) {
+      sendNotification("focus-complete", `⏱️ Focus Session Complete!`, `Great work! Your $PETCOIN rewards have been claimed.`);
+      notifState.focusWasActive = false;
+    }
+    if (state.focusSession && state.focusSession.active) {
+      notifState.focusWasActive = true;
+    }
+
+    chrome.storage.local.set({ notifState });
+  });
+}
 
 function accumulatePassiveYield(state) {
   if (!state) return;
@@ -628,7 +710,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     const stateSyncActions = [
       "feed", "pet", "sleep", "changePet", "renamePet", "changeSkin",
       "buyItem", "useItem", "allocateStat", "startFocus", "stopFocus",
-      "completeFocus", "startStaking", "claimStakingReward",
+      "completeFocus", "focusHeartbeat", "startStaking", "claimStakingReward",
       "ascendStage", "resetAttributes",
       "deletePet", "equipGear", "unequipGear"
     ];

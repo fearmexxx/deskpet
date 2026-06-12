@@ -932,10 +932,41 @@ async function getStakingConfig() {
   return { fee_2h: 0, fee_4h: 20, fee_8h: 50 };
 }
 
+// ==========================================
+// 🛡️ IN-MEMORY RATE LIMITER (per-user)
+// ==========================================
+const rateLimitMap = new Map(); // key: userId, value: { count, resetAt }
+const RATE_LIMIT_WINDOW_MS = 60000; // 1 minute
+const RATE_LIMIT_MAX_REQUESTS = 20; // 20 requests per minute per user
+
+function checkRateLimit(userId) {
+  const now = Date.now();
+  let entry = rateLimitMap.get(userId);
+  if (!entry || now > entry.resetAt) {
+    entry = { count: 0, resetAt: now + RATE_LIMIT_WINDOW_MS };
+    rateLimitMap.set(userId, entry);
+  }
+  entry.count++;
+  return entry.count <= RATE_LIMIT_MAX_REQUESTS;
+}
+
+// Cleanup stale rate-limit entries every 5 minutes
+setInterval(() => {
+  const now = Date.now();
+  for (const [key, val] of rateLimitMap.entries()) {
+    if (now > val.resetAt) rateLimitMap.delete(key);
+  }
+}, 5 * 60 * 1000);
+
 app.post('/api/state/sync-action', authenticateUser, async (req, res) => {
   const { action, payload } = req.body;
   if (!action) {
     return res.status(400).json({ success: false, error: "action is required" });
+  }
+
+  // Rate limit check
+  if (!checkRateLimit(req.userId)) {
+    return res.status(429).json({ success: false, error: "Rate limit exceeded. Please slow down." });
   }
 
   if (["feed", "pet", "useItem"].includes(action)) {
@@ -1090,14 +1121,40 @@ app.post('/api/state/sync-action', authenticateUser, async (req, res) => {
       }
     } else if (action === "startFocus") {
       const duration = payload?.duration;
+      if (!duration || duration < 1 || duration > 120) {
+        return res.status(400).json({ success: false, error: "Invalid focus duration (1-120 min)" });
+      }
+
+      // Daily focus cap: 180 minutes per day
+      const DAILY_FOCUS_CAP_MINUTES = 180;
+      const todayStr = new Date().toDateString();
+      if (!state.dailyFocusMinutes || state.dailyFocusDate !== todayStr) {
+        state.dailyFocusMinutes = 0;
+        state.dailyFocusDate = todayStr;
+      }
+      if (state.dailyFocusMinutes + duration > DAILY_FOCUS_CAP_MINUTES) {
+        const remaining = DAILY_FOCUS_CAP_MINUTES - state.dailyFocusMinutes;
+        return res.status(400).json({ success: false, error: `Daily focus cap reached! Only ${remaining} min remaining today. 🌙` });
+      }
+
       state.focusSession = {
         active: true,
         startTime: Date.now(),
         duration: duration,
         endTime: Date.now() + duration * 60 * 1000,
         lastActivityTime: Date.now(),
+        lastHeartbeat: Date.now(),
         isPaused: false
       };
+    } else if (action === "focusHeartbeat") {
+      // Client must send this every 2 minutes during active focus
+      if (state.focusSession && state.focusSession.active) {
+        state.focusSession.lastHeartbeat = Date.now();
+        state.focusSession.lastActivityTime = Date.now();
+        if (state.focusSession.isPaused) {
+          state.focusSession.isPaused = false;
+        }
+      }
     } else if (action === "stopFocus") {
       if (state.focusSession) {
         state.focusSession.active = false;
@@ -1109,9 +1166,25 @@ app.post('/api/state/sync-action', authenticateUser, async (req, res) => {
         if (elapsedMinsActual < state.focusSession.duration - 0.1) {
           return res.status(400).json({ success: false, error: "Focus session completed too quickly!" });
         }
+
+        // Heartbeat validation: reject if no heartbeat in last 5 minutes
+        const HEARTBEAT_TIMEOUT_MS = 5 * 60 * 1000;
+        if (state.focusSession.lastHeartbeat && (Date.now() - state.focusSession.lastHeartbeat) > HEARTBEAT_TIMEOUT_MS) {
+          state.focusSession.active = false;
+          state.focusSession.isPaused = false;
+          return res.status(400).json({ success: false, error: "Focus session expired due to inactivity. No heartbeat received." });
+        }
         
         state.focusSession.active = false;
         state.focusSession.isPaused = false;
+
+        // Track daily focus usage
+        const todayStr = new Date().toDateString();
+        if (!state.dailyFocusMinutes || state.dailyFocusDate !== todayStr) {
+          state.dailyFocusMinutes = 0;
+          state.dailyFocusDate = todayStr;
+        }
+        state.dailyFocusMinutes += state.focusSession.duration;
         
         const mult = pet ? getRarityMultiplier(pet.rarity) : 1.0;
         const reward = Math.round(state.focusSession.duration * 20 * mult);

@@ -1,17 +1,19 @@
 {
   "manifest_version": 3,
-  "name": "DeskPet",
-  "version": "1.1.0",
-  "description": "Your glowing retro-neon pixel-art NFT pet that floats on your screen.",
+  "name": "DeskPet — Neon Cyber Companion RPG",
+  "version": "2.0.0",
+  "description": "Your neon cyber-companion RPG that lives on every webpage. Focus Timer (Pomodoro), NFT pets on Solana, PvP battles, breeding, staking expeditions & gear drops. Feed, train, and evolve your Tamagotchi-style pet while you browse.",
   "permissions": [
     "storage",
     "alarms",
     "tabs",
-    "scripting"
+    "scripting",
+    "notifications"
   ],
   "host_permissions": [
     "https://*.supabase.co/",
-    "https://auth.privy.io/"
+    "https://auth.privy.io/",
+    "http://localhost:3001/"
   ],
   "background": {
     "service_worker": "background.js"

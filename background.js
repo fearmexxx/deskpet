@@ -629,7 +629,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       "feed", "pet", "sleep", "changePet", "renamePet", "changeSkin",
       "buyItem", "useItem", "allocateStat", "startFocus", "stopFocus",
       "completeFocus", "startStaking", "claimStakingReward",
-      "upgradeRarity", "ascendStage", "resetAttributes",
+      "ascendStage", "resetAttributes",
       "deletePet", "equipGear", "unequipGear"
     ];
 
@@ -1377,55 +1377,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           sendResponse({ success: true, rewardMsg, state });
         });
       }
-    } else if (message.action === "upgradeRarity") {
-      const { petId } = message;
-      const targetPet = state.pets[petId];
-      if (!targetPet) {
-        sendResponse({ success: false, error: "Pet not found" });
-        return;
-      }
-
-      const cost = 50000;
-      if (bgSupabase && state.userAccount.loggedIn) {
-        (async () => {
-          try {
-            const { data, error } = await bgSupabase.rpc('upgrade_rarity_secure', { pet_id: petId });
-            if (error) {
-              sendResponse({ success: false, error: error.message });
-            } else {
-              state = data;
-              chrome.storage.local.set({ petState: state }, () => {
-                broadcastStateUpdate(state);
-                sendResponse({ success: true, state });
-              });
-            }
-          } catch (err) {
-            sendResponse({ success: false, error: err.message });
-          }
-        })();
-        return;
-      } else {
-        if ((state.petcoin || 0) < cost) {
-          sendResponse({ success: false, error: "Insufficient $PETCOIN. Cost: 50,000" });
-          return;
-        }
-
-        const rarities = ["Common", "Rare", "Epic", "Legendary"];
-        const currentRarity = targetPet.rarity || "Common";
-        const curIdx = rarities.indexOf(currentRarity);
-        if (curIdx === -1 || curIdx === rarities.length - 1) {
-          sendResponse({ success: false, error: "Pet is already at maximum rarity!" });
-          return;
-        }
-
-        state.petcoin -= cost;
-        targetPet.rarity = rarities[curIdx + 1];
-
-        chrome.storage.local.set({ petState: state }, () => {
-          broadcastStateUpdate(state);
-          sendResponse({ success: true, state });
-        });
-      }
+    // NOTE: upgradeRarity action was removed in Phase 7 (Launch Readiness).
+    // Rarity is determined exclusively by the server-side roll at purchase time.
     } else if (message.action === "ascendStage") {
       const { petId } = message;
       const targetPet = state.pets[petId];

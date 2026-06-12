@@ -12,10 +12,30 @@ import path from 'path';
 dotenv.config();
 
 const app = express();
-app.use(cors());
+
+// CORS: restrict to extension origin in production
+const CORS_ORIGIN = process.env.CORS_ORIGIN || '*';
+app.use(cors({
+  origin: CORS_ORIGIN === '*' ? true : CORS_ORIGIN.split(','),
+  methods: ['GET', 'POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(express.json());
 
 const PORT = process.env.PORT || 3001;
+
+// ==========================================
+// 🏥 HEALTH CHECK ENDPOINT
+// ==========================================
+app.get('/health', (req, res) => {
+  res.json({
+    status: 'ok',
+    service: 'deskpet-server',
+    version: '2.0.0',
+    uptime: process.uptime(),
+    timestamp: new Date().toISOString()
+  });
+});
 
 const SUPABASE_URL = process.env.SUPABASE_URL || "https://fqnnxtzuocsdhmvmltje.supabase.co";
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -274,26 +294,26 @@ async function burnDistributorDesk(amount) {
 // ==========================================
 // 🛡️ RPG GEAR GENERATOR
 // ==========================================
-const GEAR_PREFIXES = ["Consolidated", "Vengeful", "Gladiator's", "Warlord's", "Cataclysmic", "Desecrated", "Corrupted", "Hallowed"];
+const GEAR_PREFIXES = ["Overclocked", "Corrupted", "Quantum", "Neon-Forged", "Glitched", "Prototype", "Salvaged", "Hardened"];
 const GEAR_NAMES = {
   weapon: [
-    "Ashbringer", "Thunderfury", "Atiesh", "Gressil", "Doomhammer",
-    "Frostmourne", "Glaive of the Defiler", "Sulfuras", "Kel'Thuzad's Reach", "Grand Widow's Blade"
+    "Plasma Railcannon", "Ion Disruptor", "Photon Katana", "Volt Hammer", "Neural Lash",
+    "Cryo Piercer", "Arc Glaive", "Fusion Maul", "Pulse Scythe", "Null Blade"
   ],
   head: [
-    "Helm of Domination", "Crown of the Firelord", "Coif of Ten Storms",
-    "Greathelm of the Earthshaker", "Visage of the Destroyer", "Diadem of Spellwarding"
+    "Cortex Visor", "Synaptic Crown", "Holo-Helm", "Signal Jammer Cowl",
+    "Neuro-Link Circlet", "EMP Shielded Headgear"
   ],
   clothes: [
-    "Robe of the Archmage", "Breastplate of Might", "Vestments of Prophecy",
-    "Judgement Breastplate", "Tunic of the Shifting Sands", "Netherwind Robes"
+    "Reactive Nanoweave", "Titanium Exoplate", "Stealth Mesh Suit",
+    "Ablative Core Vest", "Drift Runner Jacket", "Photovoltaic Shroud"
   ],
   aiChip: [
-    "Neltharion's Tear", "Eye of C'Thun", "Wushoolay's Charm",
-    "Shard of the Fallen Star", "Rejuvenating Gem", "Styleen's Impending Scarab"
+    "Zero-Day Exploit Core", "Quantum Entangler", "Deep-Learning Shard",
+    "Predictive Cortex Module", "Overclock Gem", "Entropy Stabilizer"
   ]
 };
-const GEAR_SUFFIXES = ["of the Void", "of the Fireflash", "of the Whale", "of the Quickblade", "of Shadow", "of Net-Runners", "of the Elements"];
+const GEAR_SUFFIXES = ["of the Void", "of the Mainframe", "of Latency", "of the Quickblade", "of Shadow", "of Net-Runners", "of the Grid"];
 
 function generateRandomGear(rarityOverride = null) {
   const slots = ["weapon", "head", "clothes", "aiChip"];
@@ -459,7 +479,7 @@ app.post('/api/faucet/claim', authenticateUser, async (req, res) => {
 
       if (!ataExists) {
         transaction.add(
-          solanaWeb3.TransactionInstruction({
+          new solanaWeb3.TransactionInstruction({
             keys: [
               { pubkey: distributorKeypair.publicKey, isSigner: true, isWritable: true },
               { pubkey: userAtaAddress, isSigner: false, isWritable: true },
@@ -1278,25 +1298,8 @@ app.post('/api/state/sync-action', authenticateUser, async (req, res) => {
       }
       state.petcoin -= cost;
       state.ownedSkins.push(skinName);
-    } else if (action === "upgradeRarity") {
-      const targetPetId = payload?.petId;
-      const targetPet = state.pets[targetPetId];
-      if (!targetPet) return res.status(400).json({ success: false, error: "Pet not found" });
-
-      const cost = 50000;
-      if ((state.petcoin || 0) < cost) {
-        return res.status(400).json({ success: false, error: "Insufficient $PETCOIN. Cost: 50,000" });
-      }
-
-      const rarities = ["Common", "Rare", "Epic", "Legendary"];
-      const currentRarity = targetPet.rarity || "Common";
-      const curIdx = rarities.indexOf(currentRarity);
-      if (curIdx === -1 || curIdx === rarities.length - 1) {
-        return res.status(400).json({ success: false, error: "Pet is already at maximum rarity!" });
-      }
-
-      state.petcoin -= cost;
-      targetPet.rarity = rarities[curIdx + 1];
+    // NOTE: upgradeRarity action was removed in Phase 7 (Launch Readiness).
+    // Rarity is determined exclusively by the server-side roll at purchase time.
     } else if (action === "ascendStage") {
       const targetPetId = payload?.petId;
       const targetPet = state.pets[targetPetId];
@@ -1336,12 +1339,12 @@ app.post('/api/state/sync-action', authenticateUser, async (req, res) => {
         return res.status(400).json({ success: false, error: "Insufficient $PETCOIN. Cost: 10,000" });
       }
 
-      let baseStr = 10, baseAgi = 10, baseInt = 10;
-      if (targetPetId === "astro-dog") {
-        baseStr = 12; baseAgi = 8; baseInt = 10;
-      } else if (targetPetId === "cyber-bunny") {
-        baseStr = 8; baseAgi = 12; baseInt = 10;
-      }
+      // Resolve species from pet.species field, falling back to ID prefix parsing
+      const species = targetPet.species || (targetPet.id.includes("dog") ? "astro-dog" : (targetPet.id.includes("bunny") ? "cyber-bunny" : "sol-cat"));
+      const speciesBaseStats = BASE_STATS[species] || { strength: 10, agility: 10, intelligence: 10, stamina: 10 };
+      const baseStr = speciesBaseStats.strength;
+      const baseAgi = speciesBaseStats.agility;
+      const baseInt = speciesBaseStats.intelligence;
 
       const currentStr = targetPet.strength || baseStr;
       const currentAgi = targetPet.agility || baseAgi;
@@ -1497,7 +1500,7 @@ app.post('/api/breed', authenticateUser, async (req, res) => {
     const intelligence = Math.floor((parentA.intelligence + parentB.intelligence) / 2) + Math.floor(Math.random() * 5) + 1;
     const stamina = Math.floor((parentA.stamina + parentB.stamina) / 2) + Math.floor(Math.random() * 5) + 1;
 
-    const parentType = parentA.id.includes("cat") ? "sol-cat" : (parentA.id.includes("dog") ? "astro-dog" : "cyber-bunny");
+    const parentType = parentA.species || (parentA.id.includes("cat") ? "sol-cat" : (parentA.id.includes("dog") ? "astro-dog" : "cyber-bunny"));
     const babyName = `Baby-${parentA.name.split(' ')[0]}`;
 
     let rarity = "Common";
@@ -1637,7 +1640,7 @@ function simulatePvPBattle(playerA, playerB) {
     strength: getFullStat(petA, "strength"),
     agility: getFullStat(petA, "agility"),
     intelligence: getFullStat(petA, "intelligence"),
-    type: petA.id.includes("cat") ? "cat" : (petA.id.includes("dog") ? "dog" : "bunny")
+    type: (petA.species || petA.id).includes("cat") ? "cat" : ((petA.species || petA.id).includes("dog") ? "dog" : "bunny")
   };
 
   const combatB = {
@@ -1648,7 +1651,7 @@ function simulatePvPBattle(playerA, playerB) {
     strength: getFullStat(petB, "strength"),
     agility: getFullStat(petB, "agility"),
     intelligence: getFullStat(petB, "intelligence"),
-    type: petB.id.includes("cat") ? "cat" : (petB.id.includes("dog") ? "dog" : "bunny")
+    type: (petB.species || petB.id).includes("cat") ? "cat" : ((petB.species || petB.id).includes("dog") ? "dog" : "bunny")
   };
 
   // Evasion Cap: 30%, Crit Cap: 40%, Skill Chance Cap: 45%

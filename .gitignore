@@ -7,3 +7,4 @@ distributor-keypair.json
 .gitnexus/
 .claude/
 .gemini/
+node_modules

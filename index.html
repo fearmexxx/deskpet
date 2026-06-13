@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- SEO Optimization -->
+  <title>DeskPet — Summon Your Neon Guardian. Raid the Web.</title>
+  <meta name="description" content="Meet DeskPet, the ultimate desktop companion RPG. Summon pixel-art neon guardians directly onto your browser windows, complete quests, earn token yields, and level up.">
+  <meta name="keywords" content="DeskPet, Browser Pet, Tamagotchi, Solana NFT, RPG Companion, Neon Game, Idle MMORPG, Focus Game">
+  <meta name="author" content="DeskPet Team">
+  
+  <!-- Open Graph -->
+  <meta property="og:title" content="DeskPet — Summon Your Neon Guardian. Raid the Web.">
+  <meta property="og:description" content="Level up your workspace. A floating pixel-art pet browser extension offering real-time stats training, active raid quests, and on-chain breeding.">
+  <meta property="og:type" content="website">
+  
+  <!-- CSS Styling -->
+  <link rel="stylesheet" href="landing.css">
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="assets/icon.png">
+</head>
+<body>
+
+  <!-- Header Section -->
+  <header>
+    <a href="#" class="logo" id="nav-logo">
+      <img src="assets/icon.png" alt="DeskPet Logo" class="logo-egg" id="logo-egg-img">
+      DESKPET
+    </a>
+    <ul class="nav-links">
+      <li><a href="#features" id="link-features">Mechanics</a></li>
+      <li><a href="#summon" id="link-summon">Summoning</a></li>
+      <li><a href="#game-client" id="link-client">Quest Logs</a></li>
+    </ul>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero" id="summon">
+    <div class="hero-content">
+      <span class="rpg-badge">Desktop Companion MMORPG</span>
+      <h1>Summon your neon guardian. <br><span class="gradient-text">Raid the web.</span></h1>
+      <p>Transform your daily computer grind into an epic adventure. Train dynamic companions directly inside your browser window, manage their stats, complete high-yield bounties, and sync progression to the Solana network.</p>
+      
+      <div class="cta-group">
+        <a href="#game-client" class="btn btn-primary" id="btn-hero-play">
+          View Active Quests
+        </a>
+        <a href="#summon" class="btn btn-secondary" id="btn-hero-summon">
+          Begin Summoning Altar
+        </a>
+      </div>
+    </div>
+
+    <!-- Live Preview Summoning Altar & Character HUD -->
+    <div class="hero-media">
+      <div class="summoning-circle-wrapper">
+        <div class="summoning-runes"></div>
+        
+        <div class="character-hud-card" id="interactive-card">
+          <!-- Character Sheet Header -->
+          <div class="character-sheet-header">
+            <span class="char-title" id="char-name-label">SOL-CAT</span>
+            <span class="char-level" id="char-level-badge">LVL 42</span>
+          </div>
+
+          <!-- Live Pet Altar Viewport -->
+          <div class="pet-viewport pet-hud-glow-purple" id="pet-viewport-box">
+            <!-- Live SVG injected here -->
+          </div>
+
+          <!-- RPG Stats Gauges -->
+          <div class="rpg-stats-container">
+            <!-- XP Bar -->
+            <div class="stat-row">
+              <div class="stat-info">
+                <span class="stat-name">Experience (XP)</span>
+                <span class="stat-value" id="val-xp">4200 / 5000</span>
+              </div>
+              <div class="stat-bar-outer">
+                <div class="stat-bar-inner bar-xp" id="bar-xp-fill" style="width: 84%;"></div>
+              </div>
+            </div>
+
+            <!-- Happiness / HP Bar -->
+            <div class="stat-row">
+              <div class="stat-info">
+                <span class="stat-name">Happiness (HP)</span>
+                <span class="stat-value" id="val-happy">90 / 100</span>
+              </div>
+              <div class="stat-bar-outer">
+                <div class="stat-bar-inner bar-happy" id="bar-happy-fill" style="width: 90%;"></div>
+              </div>
+            </div>
+
+            <!-- Energy Bar -->
+            <div class="stat-row">
+              <div class="stat-info">
+                <span class="stat-name">Energy (ENG)</span>
+                <span class="stat-value" id="val-energy">75 / 100</span>
+              </div>
+              <div class="stat-bar-outer">
+                <div class="stat-bar-inner bar-energy" id="bar-energy-fill" style="width: 75%;"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sandbox Controls Dashboard -->
+          <div class="sandbox-controls">
+            <!-- Select Pet -->
+            <div class="control-group">
+              <span class="control-label">Choose Guardian Species</span>
+              <div class="selector-grid">
+                <button class="selector-btn pet-btn active" data-pet="sol-cat" id="btn-pet-cat">Sol-Cat 🐱</button>
+                <button class="selector-btn pet-btn" data-pet="astro-dog" id="btn-pet-dog">Astro-Dog 🐶</button>
+                <button class="selector-btn pet-btn" data-pet="cyber-bunny" id="btn-pet-bunny">Cyber-Bunny 🐰</button>
+              </div>
+            </div>
+
+            <!-- Evolution Stage -->
+            <div class="control-group">
+              <span class="control-label">Evolution Phase</span>
+              <div class="selector-grid">
+                <button class="selector-btn stage-btn" data-stage="Baby" id="btn-stage-baby">Baby</button>
+                <button class="selector-btn stage-btn" data-stage="Teen" id="btn-stage-teen">Juvenile</button>
+                <button class="selector-btn stage-btn active" data-stage="Adult" id="btn-stage-adult">Adult</button>
+              </div>
+            </div>
+
+            <!-- Skin Glow Colors -->
+            <div class="control-group">
+              <span class="control-label">Aura Glow Alignment</span>
+              <div class="skin-grid">
+                <button class="selector-btn skin-btn active" data-skin="default" id="btn-skin-default">Default</button>
+                <button class="selector-btn skin-btn" data-skin="neon-cyan" id="btn-skin-cyan">Cyan</button>
+                <button class="selector-btn skin-btn" data-skin="neon-pink" id="btn-skin-pink">Pink</button>
+                <button class="selector-btn skin-btn" data-skin="neon-green" id="btn-skin-green">Green</button>
+                <button class="selector-btn skin-btn" data-skin="neon-gold" id="btn-skin-gold">Gold</button>
+                <button class="selector-btn skin-btn" data-skin="neon-purple" id="btn-skin-purple">Purple</button>
+                <button class="selector-btn skin-btn" data-skin="neon-rainbow" id="btn-skin-rainbow">Rainbow</button>
+                <button class="selector-btn skin-btn" data-skin="neon-matrix" id="btn-skin-matrix">Matrix</button>
+              </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="control-group" style="margin-bottom: 0;">
+              <span class="control-label">Interact & Train</span>
+              <div class="action-grid">
+                <button class="selector-btn action-btn" data-action="feed" id="btn-action-feed">Feed Cookie 🍪</button>
+                <button class="selector-btn action-btn" data-action="pet" id="btn-action-pet">Give Pats ❤️</button>
+                <button class="selector-btn action-btn" data-action="sleep" id="btn-action-sleep">Toggle Sleep 💤</button>
+                <button class="selector-btn action-btn" data-action="distract" id="btn-action-distract">Scare Pet ⚡</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Interactive Game UI Client Preview Section -->
+  <section class="game-client-section" id="game-client">
+    <div class="game-client-frame">
+      <div class="game-client-header">
+        <h2>HUD Station Dashboard</h2>
+        <div class="client-tabs">
+          <button class="client-tab-btn active" data-tab="quests" id="tab-quests">Bounty Boards (Raids)</button>
+          <button class="client-tab-btn" data-tab="evo" id="tab-evo">Evolution Chamber</button>
+          <button class="client-tab-btn" data-tab="breed" id="tab-breed">Genetic Lab</button>
+        </div>
+      </div>
+
+      <!-- Tab Content 1: Quest Log (Bounties & Raids) -->
+      <div class="client-screen-content active" id="screen-quests">
+        <div class="quest-log-grid">
+          <!-- Quest Card 1 -->
+          <div class="quest-card" id="quest-runner">
+            <div class="quest-meta">
+              <span class="quest-tag tag-raid">Endless Raid</span>
+              <span class="quest-reward">+250 $DESK</span>
+            </div>
+            <h3>Neon Runner Raid</h3>
+            <p>Leap obstacles in a high-speed canvas grid. Reach 150 points to claim the bounty.</p>
+            <div class="quest-progress">
+              <div class="quest-progress-label">
+                <span>Raid Completion</span>
+                <span>Active</span>
+              </div>
+              <div class="stat-bar-outer" style="height: 6px; margin-top: 4px;">
+                <div class="stat-bar-inner bar-xp" style="width: 45%;"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quest Card 2 -->
+          <div class="quest-card" id="quest-focus">
+            <div class="quest-meta">
+              <span class="quest-tag tag-daily">Daily Expedition</span>
+              <span class="quest-reward">+150 $DESK</span>
+            </div>
+            <h3>Focus Training Routine</h3>
+            <p>Execute a 30-minute workspace focus sprint. Level up pet intelligence and strength.</p>
+            <div class="quest-progress">
+              <div class="quest-progress-label">
+                <span>Raid Completion</span>
+                <span>Ready to Launch</span>
+              </div>
+              <div class="stat-bar-outer" style="height: 6px; margin-top: 4px;">
+                <div class="stat-bar-inner bar-happy" style="width: 0%;"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quest Card 3 -->
+          <div class="quest-card" id="quest-memory">
+            <div class="quest-meta">
+              <span class="quest-tag tag-raid">Matrix Breach</span>
+              <span class="quest-reward">+180 $DESK</span>
+            </div>
+            <h3>Grid Memory Match</h3>
+            <p>Infiltrate the secure neon sector grid and pair matching credentials to claim rewards.</p>
+            <div class="quest-progress">
+              <div class="quest-progress-label">
+                <span>Raid Completion</span>
+                <span>Locked (Cooldowned)</span>
+              </div>
+              <div class="stat-bar-outer" style="height: 6px; margin-top: 4px;">
+                <div class="stat-bar-inner bar-energy" style="width: 100%;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab Content 2: Evolution Chamber -->
+      <div class="client-screen-content" id="screen-evo">
+        <div class="evolution-chamber-grid">
+          <!-- Evo 1 -->
+          <div class="evo-card" id="evo-egg">
+            <span class="evo-stage-level">Phase I: Egg</span>
+            <div class="evo-visual-placeholder">🥚</div>
+            <h3>Egg Shell Stasis</h3>
+            <p>Levels 1-10. Consumes passive energy. Incubation requires workspace idle time.</p>
+          </div>
+
+          <!-- Evo 2 -->
+          <div class="evo-card" id="evo-juvenile">
+            <span class="evo-stage-level">Phase II: Juvenile</span>
+            <div class="evo-visual-placeholder">🐾</div>
+            <h3>Juvenile Striker</h3>
+            <p>Levels 11-60. Unlocks the training mini-games board and standard glowing skins.</p>
+          </div>
+
+          <!-- Evo 3 -->
+          <div class="evo-card" id="evo-legendary">
+            <span class="evo-stage-level">Phase III: Legend</span>
+            <div class="evo-visual-placeholder">👑</div>
+            <h3>Legendary Ascendant</h3>
+            <p>Levels 61-100. Employs cybernetic wings, dual auric glows, and max token yields.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab Content 3: Genetic Breeding Lab -->
+      <div class="client-screen-content" id="screen-breed">
+        <div class="breeding-lab-console">
+          <div class="parent-slot active" id="slot-parent1">
+            <span class="parent-icon">🐱</span>
+            <span class="parent-label">Parent I</span>
+          </div>
+          
+          <div class="lab-divider">🧬</div>
+          
+          <div class="parent-slot active" id="slot-parent2">
+            <span class="parent-icon">🐰</span>
+            <span class="parent-label">Parent II</span>
+          </div>
+
+          <div class="breeding-btn-container">
+            <button class="btn btn-primary" style="padding: 0.8rem 2rem; font-size:0.85rem;" id="btn-trigger-breeding">
+              Initiate Genetic Fusion
+            </button>
+            <span class="breed-desc">Burns 500 $DESK. Yields a new, unique hybrid Egg containing rare, procedural neon stats.</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Mechanics Section -->
+  <section class="features-section" id="features">
+    <div class="section-header">
+      <h2>MMORPG System Mechanics</h2>
+      <p>A full layout of how DeskPet tracks progress and synchronizes attributes.</p>
+    </div>
+
+    <div class="features-grid">
+      <!-- Feature 1 -->
+      <div class="feature-card" id="feat-summoning">
+        <span class="feature-icon">✨</span>
+        <h3>Summon Overlay Canvas</h3>
+        <p>Injects an animated canvas pet onto your desktop workspace. The pet roams, follows your cursor, sleeps when idle, and prompts you to feed them.</p>
+      </div>
+
+      <!-- Feature 2 -->
+      <div class="feature-card" id="feat-attributes">
+        <span class="feature-icon">📊</span>
+        <h3>RPG Attribute Customizer</h3>
+        <p>Distribute earned stat points into Intelligence, Strength, and Charm. Upgrade to gold, matrix, or rainbow color skins securely synced from the server.</p>
+      </div>
+
+      <!-- Feature 3 -->
+      <div class="feature-card" id="feat-nfts">
+        <span class="feature-icon">💎</span>
+        <h3>Metaplex NFT Core</h3>
+        <p>Export your level 10+ pet as a dynamic Solana NFT. Upgrade stats off-chain, initiate on-chain breeding, and list items dynamically.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Final CTA Banner -->
+  <section class="action-banner" id="banner-section">
+    <h2>Summon your neon pet today</h2>
+    <p>Install the unpacked developer build extension now and start training your companion.</p>
+    <a href="#how-it-works" class="btn btn-primary" style="padding: 1rem 3rem;" id="btn-install-banner">
+      Retrieve Setup Steps
+    </a>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-content">
+      <p>&copy; 2026 DeskPet. All rights reserved.</p>
+      <ul class="footer-links">
+        <li><a href="#" id="foot-home">Home</a></li>
+        <li><a href="#features" id="foot-features">Mechanics</a></li>
+        <li><a href="#game-client" id="foot-client">Bounties</a></li>
+      </ul>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="pet_assets.js"></script>
+  <script>
+    // Live Interactive Pet Sandbox & HUD Station Logic
+    document.addEventListener("DOMContentLoaded", () => {
+      // Elements
+      const petViewportBox = document.getElementById("pet-viewport-box");
+      const charNameLabel = document.getElementById("char-name-label");
+      const charLevelBadge = document.getElementById("char-level-badge");
+      
+      const barXpFill = document.getElementById("bar-xp-fill");
+      const valXp = document.getElementById("val-xp");
+      const barHappyFill = document.getElementById("bar-happy-fill");
+      const valHappy = document.getElementById("val-happy");
+      const barEnergyFill = document.getElementById("bar-energy-fill");
+      const valEnergy = document.getElementById("val-energy");
+
+      const petBtns = document.querySelectorAll(".pet-btn");
+      const stageBtns = document.querySelectorAll(".stage-btn");
+      const skinBtns = document.querySelectorAll(".skin-btn");
+      const actionBtns = document.querySelectorAll(".action-btn");
+
+      // Current Selected States
+      let selectedPet = "sol-cat";
+      let selectedStage = "Adult";
+      let selectedSkin = "default";
+      let selectedState = "idle";
+      let actionTimeout = null;
+
+      // Stats simulation tracker
+      let stats = {
+        level: 42,
+        xp: 4200,
+        maxXp: 5000,
+        happy: 90,
+        energy: 75
+      };
+
+      // Glow border matching active skin
+      const glowMap = {
+        "default": "pet-hud-glow-purple",
+        "neon-cyan": "pet-hud-glow-cyan",
+        "neon-pink": "pet-hud-glow-pink",
+        "neon-green": "pet-hud-glow-green",
+        "neon-gold": "pet-hud-glow-gold",
+        "neon-purple": "pet-hud-glow-purple",
+        "neon-rainbow": "pet-hud-glow-pink",
+        "neon-matrix": "pet-hud-glow-green"
+      };
+
+      const petNames = {
+        "sol-cat": "SOL-CAT",
+        "astro-dog": "ASTRO-DOG",
+        "cyber-bunny": "CYBER-BUNNY"
+      };
+
+      // Main Render Function
+      function updatePet() {
+        if (!window.PET_ASSETS) {
+          petViewportBox.innerHTML = "<p style='color:red;'>Failed to load assets</p>";
+          return;
+        }
+
+        const pet = window.PET_ASSETS[selectedPet];
+        if (pet && typeof pet.render === "function") {
+          // Render SVG
+          const svgContent = pet.render(selectedState, selectedStage, selectedSkin);
+          petViewportBox.innerHTML = svgContent;
+
+          // Update viewport glow border
+          petViewportBox.className = "pet-viewport " + (glowMap[selectedSkin] || "pet-hud-glow-purple");
+        }
+
+        // Update stats GUI displays
+        charNameLabel.textContent = petNames[selectedPet] || "PET";
+        charLevelBadge.textContent = "LVL " + stats.level;
+        
+        // Render Bars
+        barXpFill.style.width = ((stats.xp / stats.maxXp) * 100) + "%";
+        valXp.textContent = `${stats.xp} / ${stats.maxXp}`;
+
+        barHappyFill.style.width = stats.happy + "%";
+        valHappy.textContent = `${stats.happy} / 100`;
+
+        barEnergyFill.style.width = stats.energy + "%";
+        valEnergy.textContent = `${stats.energy} / 100`;
+      }
+
+      // Selector Button Click Handlers
+      petBtns.forEach(btn => {
+        btn.addEventListener("click", () => {
+          petBtns.forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          selectedPet = btn.getAttribute("data-pet");
+          updatePet();
+        });
+      });
+
+      stageBtns.forEach(btn => {
+        btn.addEventListener("click", () => {
+          stageBtns.forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          selectedStage = btn.getAttribute("data-stage");
+          
+          // Modify simulated stats based on stage selection
+          if (selectedStage === "Baby") {
+            stats.level = 5;
+            stats.xp = 420;
+            stats.maxXp = 1000;
+          } else if (selectedStage === "Teen") {
+            stats.level = 24;
+            stats.xp = 1800;
+            stats.maxXp = 3000;
+          } else {
+            stats.level = 42;
+            stats.xp = 4200;
+            stats.maxXp = 5000;
+          }
+          updatePet();
+        });
+      });
+
+      skinBtns.forEach(btn => {
+        btn.addEventListener("click", () => {
+          skinBtns.forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          selectedSkin = btn.getAttribute("data-skin");
+          updatePet();
+        });
+      });
+
+      // Interactive Action Handlers
+      actionBtns.forEach(btn => {
+        btn.addEventListener("click", () => {
+          const action = btn.getAttribute("data-action");
+
+          // Clear any active action timeouts
+          if (actionTimeout) {
+            clearTimeout(actionTimeout);
+          }
+
+          // Handle Sleep Toggle
+          if (action === "sleep") {
+            if (selectedState === "sleep") {
+              selectedState = "idle";
+              btn.textContent = "Toggle Sleep 💤";
+              btn.classList.remove("active");
+              stats.energy = Math.min(100, stats.energy + 20);
+            } else {
+              selectedState = "sleep";
+              btn.textContent = "Wake Up ⏰";
+              btn.classList.add("active");
+            }
+            updatePet();
+            return;
+          }
+
+          // Reset sleep state button if waking up via actions
+          const sleepBtn = document.getElementById("btn-action-sleep");
+          sleepBtn.textContent = "Toggle Sleep 💤";
+          sleepBtn.classList.remove("active");
+
+          // Handle temporary action triggers with stats progression simulation
+          if (action === "feed") {
+            selectedState = "eat";
+            stats.energy = Math.min(100, stats.energy + 10);
+            stats.xp = Math.min(stats.maxXp, stats.xp + 50);
+          } else if (action === "pet") {
+            selectedState = "happy";
+            stats.happy = Math.min(100, stats.happy + 10);
+            stats.xp = Math.min(stats.maxXp, stats.xp + 30);
+          } else if (action === "distract") {
+            selectedState = "distracted";
+            stats.happy = Math.max(0, stats.happy - 15);
+          }
+
+          updatePet();
+
+          // Revert back to idle after 2 seconds
+          actionTimeout = setTimeout(() => {
+            selectedState = "idle";
+            updatePet();
+          }, 2000);
+        });
+      });
+
+      // Game Client Tabs Toggling
+      const tabBtns = document.querySelectorAll(".client-tab-btn");
+      const screens = document.querySelectorAll(".client-screen-content");
+
+      tabBtns.forEach(btn => {
+        btn.addEventListener("click", () => {
+          tabBtns.forEach(b => b.classList.remove("active"));
+          screens.forEach(s => s.classList.remove("active"));
+
+          btn.classList.add("active");
+          const targetTab = btn.getAttribute("data-tab");
+          document.getElementById("screen-" + targetTab).classList.add("active");
+        });
+      });
+
+      // Simple click animation for simulated breeding initiation
+      const breedBtn = document.getElementById("btn-trigger-breeding");
+      breedBtn.addEventListener("click", () => {
+        breedBtn.textContent = "Synthesizing...";
+        breedBtn.disabled = true;
+        setTimeout(() => {
+          breedBtn.textContent = "Egg Synthesized! 🥚";
+          setTimeout(() => {
+            breedBtn.textContent = "Initiate Genetic Fusion";
+            breedBtn.disabled = false;
+          }, 2000);
+        }, 1500);
+      });
+
+      // Initial Render
+      updatePet();
+    });
+  </script>
+</body>
+</html>
